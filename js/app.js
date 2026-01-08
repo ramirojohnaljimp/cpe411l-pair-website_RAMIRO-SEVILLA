@@ -44,6 +44,9 @@ const toast = document.getElementById('toast');
 const searchInput = document.getElementById('search-input');
 const translateSelect = document.getElementById('translate');
 
+// header search (separate input in header) and dropdown will be handled if present on page
+const headerSearch = document.getElementById('header-search');
+
 // load preferred translation
 const savedTrans = localStorage.getItem('dv_trans');
 if(savedTrans) translateSelect.value = savedTrans;
@@ -132,8 +135,14 @@ window.addEventListener('keydown', (e)=>{
 (function init(){
   const m = location.hash.match(/v=(\d+)/);
   const t = location.hash.match(/t=([A-Za-z_\-]+)/);
+  const q = location.hash.match(/q=([^&]+)/);
   if(m) idx = Number(m[1])%verses.length;
   if(t && t[1]){ translateSelect.value = t[1]; localStorage.setItem('dv_trans', t[1]); }
+  if(q && q[1]){
+    const val = decodeURIComponent(q[1]);
+    if(searchInput){ searchInput.value = val; searchInput.dispatchEvent(new Event('input')); }
+    if(headerSearch) headerSearch.value = val;
+  }
   render();
 })();
 
@@ -142,6 +151,34 @@ const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-re
 const originalTypeWrite = typeWrite;
 if(prefersReducedMotion){
   typeWrite = function(str){ verseText.textContent = str; };
+}
+
+// wire header search: Enter triggers site search (uses page search if available)
+if(headerSearch){
+  headerSearch.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const qv = headerSearch.value.trim(); if(!qv) return;
+      if(searchInput){ searchInput.value = qv; searchInput.dispatchEvent(new Event('input')); location.hash = `q=${encodeURIComponent(qv)}`; }
+      else { location.href = 'index.html#q=' + encodeURIComponent(qv); }
+    }
+  });
+}
+
+// dropdown toggle behavior
+const navDropdown = document.querySelector('.nav-dropdown');
+if(navDropdown){
+  const toggle = navDropdown.querySelector('.dropdown-toggle');
+  const menu = navDropdown.querySelector('.dropdown-menu');
+  if(toggle){
+    toggle.addEventListener('click', (e)=>{ e.stopPropagation(); const open = navDropdown.classList.toggle('open'); toggle.setAttribute('aria-expanded', open); });
+    document.addEventListener('click', (e)=>{ if(!navDropdown.contains(e.target)){ navDropdown.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); } });
+    if(menu){
+      menu.addEventListener('click', (e)=>{
+        const a = e.target.closest('a'); if(!a) return; e.preventDefault(); const t = a.dataset.testament;
+        if(t){ location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + t; }
+      });
+    }
+  }
 }
 
 // Interactive particle background

@@ -7,7 +7,30 @@
   <link href="../css/style.css" rel="stylesheet">
 </head>
 <body>
-  <header class="site-header"><div class="container"><h1 class="logo">All Verses</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="../">All Verses</a>
+
+      <div class="header-search">
+        <input id="header-search" placeholder="Search verses or books..." aria-label="Search" />
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="../">Home</a>
+        <a href="../index.html">Daily Verse</a>
+        <div class="nav-dropdown">
+          <button class="dropdown-toggle" aria-expanded="false">Bible Testament ▾</button>
+          <div class="dropdown-menu" role="menu">
+            <a href="#" data-testament="new">New Testament</a>
+            <a href="#" data-testament="old">Old Testament</a>
+          </div>
+        </div>
+        <a href="../pages/verse.html">All Verses</a>
+        <a href="../pages/about.html">About</a>
+        <a href="../pages/contact.html">Contacts</a>
+      </nav>
+    </div>
+  </header>
   <main class="container">
     <ul id="verse-list" class="verse-list"></ul>
   </main>
