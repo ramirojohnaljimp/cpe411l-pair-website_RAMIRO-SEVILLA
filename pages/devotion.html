@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Devotions — Daily Verse</title>
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header"><div class="container"><h1 class="logo">Devotions</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
+  <main class="container">
+    <h2 id="page-title">Devotions & Prayers</h2>
+    <p class="muted">Choose a devotion branch from the list below.</p>
+    <div class="branches-grid" id="dev-branches"></div>
+    <section id="dev-content" style="margin-top:1.25rem;display:none"></section>
+  </main>
+  <script>
+    const branches = [
+      {id:'morning', title:'Morning Devotion', desc:'Short reflection to start your day', content:'<p>Begin with a short reading and a prayer of thanks. Read Psalm 5:3 and spend a few moments in silent reflection.</p><p><strong>Prayer:</strong> Lord, guide my steps today and help me to honor you in all I do.</p>'},
+      {id:'evening', title:'Evening Prayer', desc:'Restful reflection and thanks for the day', content:'<p>Recall the day and offer thanks. Read Psalm 4 and pray for rest and renewal.</p><p><strong>Prayer:</strong> Father, thank you for your provision today. Grant me restful sleep.</p>'},
+      {id:'gratitude', title:'Gratitude Practice', desc:'Simple gratitude prompts and prayer', content:'<p>List three things you are thankful for. Offer a short prayer of gratitude for each.</p>'},
+      {id:'intercessory', title:'Intercessory Prayer', desc:'Prayers for others', content:'<p>Bring others before God: family, friends, leaders, and those in need. Pray specifically and briefly for each.</p>'},
+      {id:'confession', title:'Confession & Reflection', desc:'Quiet self-examination and confession', content:'<p>Quietly reflect, confess what you have done wrong, and seek God\'s forgiveness. Ask for strength to change.</p>'}
+    ];
+    const grid = document.getElementById('dev-branches');
+    const content = document.getElementById('dev-content');
+    function render(){
+      grid.innerHTML='';
+      branches.forEach(b=>{
+        const el=document.createElement('button'); el.className='branch-card'; el.innerHTML=`<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
+        el.addEventListener('click', ()=>{ content.style.display='block'; content.innerHTML = `<h3>${b.title}</h3><p class="muted">${b.desc}</p>` + b.content; location.hash = '#'+b.id; window.scrollTo({top:0,behavior:'smooth'}) });
+        grid.appendChild(el);
+      })
+    }
+    render();
+    // open if hash
+    const hash = location.hash.replace('#',''); if(hash){ const b = branches.find(x=>x.id === hash); if(b){ document.querySelector(`[data-id="${hash}"]`)?.click(); }}
+  </script>
+</body>
+</html>
