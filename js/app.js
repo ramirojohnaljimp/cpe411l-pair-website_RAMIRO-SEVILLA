@@ -315,3 +315,59 @@ if(navDropdown){
   window.addEventListener('touchstart', (e)=>{ const t=e.touches[0]; if(t){ starEl.classList.add('active'); spawnBurst(t.clientX, t.clientY); } }, {passive:true});
   window.addEventListener('touchend', ()=>{ starEl.classList.remove('active'); });
 })();
+
+// Devotion / Prayer branches UI
+(function branchesUI(){
+  const branches = [
+    {id:'morning', title:'Morning Devotion', desc:'Short reflection to start your day', content:'<p>Begin with a short reading and a prayer of thanks. Read Psalm 5:3 and spend a few moments in silent reflection.</p><p><strong>Prayer:</strong> Lord, guide my steps today and help me to honor you in all I do.</p>'},
+    {id:'evening', title:'Evening Prayer', desc:'Restful reflection and thanks for the day', content:'<p>Recall the day and offer thanks. Read Psalm 4 and pray for rest and renewal.</p><p><strong>Prayer:</strong> Father, thank you for your provision today. Grant me restful sleep.</p>'},
+    {id:'gratitude', title:'Gratitude Practice', desc:'Simple gratitude prompts and prayer', content:'<p>List three things you are thankful for. Offer a short prayer of gratitude for each.</p>'},
+    {id:'intercessory', title:'Intercessory Prayer', desc:'Prayers for others', content:'<p>Bring others before God: family, friends, leaders, and those in need. Pray specifically and briefly for each.</p>'},
+    {id:'confession', title:'Confession & Reflection', desc:'Quiet self-examination and confession', content:'<p>Quietly reflect, confess what you have done wrong, and seek God&apos;s forgiveness. Ask for strength to change.</p>'}
+  ];
+
+  const grid = document.getElementById('branches-grid');
+  const modal = document.getElementById('branch-modal');
+  const titleEl = document.getElementById('branch-title');
+  const descEl = document.getElementById('branch-desc');
+  const contentEl = document.getElementById('branch-content');
+  const linkEl = document.getElementById('branch-page-link');
+
+  function renderBranches(){
+    grid.innerHTML = '';
+    branches.forEach(b=>{
+      const btn = document.createElement('button');
+      btn.className='branch-card';
+      btn.setAttribute('data-id', b.id);
+      btn.innerHTML = `<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
+      btn.addEventListener('click', ()=>openBranch(b.id));
+      grid.appendChild(btn);
+    });
+  }
+
+  function openBranch(id){
+    const b = branches.find(x=>x.id===id);
+    if(!b) return;
+    titleEl.textContent = b.title;
+    descEl.textContent = b.desc;
+    contentEl.innerHTML = b.content;
+    linkEl.href = `pages/devotion.html#${b.id}`;
+    modal.setAttribute('aria-hidden','false');
+    modal.classList.add('open');
+    modal.querySelector('.modal-close').focus();
+  }
+
+  function closeBranch(){
+    modal.setAttribute('aria-hidden','true');
+    modal.classList.remove('open');
+  }
+
+  document.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', closeBranch));
+  window.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeBranch();});
+
+  renderBranches();
+
+  // open branch if hash present (#morning etc.)
+  const h = location.hash.replace('#','');
+  if(h){ const exists = branches.find(b=>b.id===h); if(exists) openBranch(h); }
+})();
