@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Daily Verse — Bible Verses</title>
   <meta name="description" content="Daily Bible verse with simple animations and interactivity" />
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -78,10 +80,42 @@
         <button class="modal-close btn" aria-label="Close" data-close>✕</button>
         <h3 id="branch-title"></h3>
         <p id="branch-desc" class="muted"></p>
+
+        <!-- font controls for devotion content -->
+        <div class="font-controls" aria-label="Font settings">
+          <label for="branch-font">Font</label>
+          <select id="branch-font" aria-label="Choose font">
+            <option value="sans">Sans (Montserrat)</option>
+            <option value="serif">Serif (Merriweather)</option>
+            <option value="hand">Handwriting (Patrick Hand)</option>
+          </select>
+          <label for="branch-font-size">Size</label>
+          <input id="branch-font-size" type="range" min="14" max="28" step="1" value="16" aria-label="Font size">
+        </div>
+
         <div id="branch-content"></div>
         <p style="margin-top:.75rem">
           <a id="branch-page-link" class="btn primary" href="#">Open full page</a>
         </p>
+      </div>
+    </div>
+
+    <!-- Testament modal (Old / New) -->
+    <div id="testament-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="testament-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel" role="document">
+        <button class="modal-close btn" aria-label="Close" data-close>✕</button>
+        <h3 id="testament-title">Bible Books</h3>
+        <p class="muted" id="testament-desc">Select a book to view its chapters and verses.</p>
+
+        <div class="testament-controls" style="margin:0.75rem 0;display:flex;gap:.6rem;align-items:center">
+          <button id="btn-old" class="btn">Old Testament</button>
+          <button id="btn-new" class="btn">New Testament</button>
+        </div>
+
+        <div id="testament-content">
+          <div class="testament-grid" id="testament-grid"></div>
+        </div>
       </div>
     </div>
   </main>

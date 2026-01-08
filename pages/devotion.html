@@ -11,6 +11,19 @@
   <main class="container">
     <h2 id="page-title">Devotions & Prayers</h2>
     <p class="muted">Choose a devotion branch from the list below.</p>
+
+    <!-- font controls for the devotion page -->
+    <div class="font-controls" style="margin-bottom:1rem">
+      <label for="page-font">Font</label>
+      <select id="page-font">
+        <option value="sans">Sans (Montserrat)</option>
+        <option value="serif">Serif (Merriweather)</option>
+        <option value="hand">Handwriting (Patrick Hand)</option>
+      </select>
+      <label for="page-font-size">Size</label>
+      <input id="page-font-size" type="range" min="14" max="28" step="1" value="16">
+    </div>
+
     <div class="branches-grid" id="dev-branches"></div>
     <section id="dev-content" style="margin-top:1.25rem;display:none"></section>
   </main>
@@ -24,15 +37,42 @@
     ];
     const grid = document.getElementById('dev-branches');
     const content = document.getElementById('dev-content');
+
+    const icons = {
+      morning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+      evening: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+      gratitude: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.78 0L12 5.6l-1.02-1a5.5 5.5 0 1 0-7.78 7.78L12 21.2l7.8-8.42a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+      intercessory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-3-3.87M7 21v-2a4 4 0 0 1 3-3.87M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>',
+      confession: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M5 12h14"/></svg>'
+    };
+
     function render(){
       grid.innerHTML='';
       branches.forEach(b=>{
-        const el=document.createElement('button'); el.className='branch-card'; el.innerHTML=`<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
+        const el=document.createElement('button'); el.className='branch-card'; el.setAttribute('data-id', b.id);
+        el.innerHTML = `<div class="icon">${icons[b.id] || ''}</div><strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
         el.addEventListener('click', ()=>{ content.style.display='block'; content.innerHTML = `<h3>${b.title}</h3><p class="muted">${b.desc}</p>` + b.content; location.hash = '#'+b.id; window.scrollTo({top:0,behavior:'smooth'}) });
         grid.appendChild(el);
       })
     }
     render();
+    // load font prefs
+    const pf = localStorage.getItem('dv_font_family') || 'sans';
+    const ps = localStorage.getItem('dv_font_size') || '16';
+    const pageFont = document.getElementById('page-font');
+    const pageFontSize = document.getElementById('page-font-size');
+
+    function applyToContent(fam, size){
+      content.classList.remove('font-sans','font-serif','font-hand');
+      if(fam === 'serif') content.classList.add('font-serif');
+      else if(fam === 'hand') content.classList.add('font-hand');
+      else content.classList.add('font-sans');
+      content.style.fontSize = size + 'px';
+    }
+    pageFont.value = pf; pageFontSize.value = ps; applyToContent(pf, ps);
+    pageFont.addEventListener('change', ()=>{ localStorage.setItem('dv_font_family', pageFont.value); applyToContent(pageFont.value, pageFontSize.value); });
+    pageFontSize.addEventListener('input', ()=>{ localStorage.setItem('dv_font_size', pageFontSize.value); applyToContent(pageFont.value, pageFontSize.value); });
+
     // open if hash
     const hash = location.hash.replace('#',''); if(hash){ const b = branches.find(x=>x.id === hash); if(b){ document.querySelector(`[data-id="${hash}"]`)?.click(); }}
   </script>

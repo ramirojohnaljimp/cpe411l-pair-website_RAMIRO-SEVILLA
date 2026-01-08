@@ -188,8 +188,65 @@ if(navDropdown){
     if(menu){
       menu.addEventListener('click', (e)=>{
         const a = e.target.closest('a'); if(!a) return; e.preventDefault(); const t = a.dataset.testament;
-        if(t){ location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + t; }
+        if(t){
+          // open local modal with book list (if present), otherwise navigate to verse page with param
+          if(typeof openTestamentModal === 'function') { openTestamentModal(t); }
+          else { location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + t; }
+        }
       });
+    }
+
+    // -- Testament modal rendering and behavior
+    const TESTAMENTS = {
+      old: [
+        'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'
+      ],
+      new: [
+        'Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'
+      ]
+    };
+
+    function openTestamentModal(which){
+      const mod = document.getElementById('testament-modal'); const grid = document.getElementById('testament-grid'); const title = document.getElementById('testament-title'); const desc = document.getElementById('testament-desc');
+      if(!mod || !grid) { location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + which; return; }
+      grid.innerHTML = '';
+      const books = TESTAMENTS[which] || [];
+      books.forEach(b=>{
+        const item = document.createElement('div'); item.className = 'book-item'; item.innerHTML = `<a href="pages/verse.html#book=${encodeURIComponent(b)}">${b}</a>`;
+        item.addEventListener('click', ()=>{ location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'pages/verse.html#book=' + encodeURIComponent(b); });
+        grid.appendChild(item);
+      });
+      title.textContent = which === 'old' ? 'Old Testament Books' : 'New Testament Books';
+      if(desc) desc.textContent = which === 'old' ? 'List of the 39 Old Testament books.' : 'List of the 27 New Testament books.';
+
+      // update control buttons state & accessibility
+      const bOld = document.getElementById('btn-old');
+      const bNew = document.getElementById('btn-new');
+      if(bOld){
+        bOld.classList.toggle('active', which === 'old');
+        bOld.setAttribute('aria-pressed', which === 'old');
+        bOld.setAttribute('aria-controls','testament-content');
+        bOld.onclick = ()=>{ if(which !== 'old') openTestamentModal('old'); };
+      }
+      if(bNew){
+        bNew.classList.toggle('active', which === 'new');
+        bNew.setAttribute('aria-pressed', which === 'new');
+        bNew.setAttribute('aria-controls','testament-content');
+        bNew.onclick = ()=>{ if(which !== 'new') openTestamentModal('new'); };
+      }
+
+      // open modal
+      mod.setAttribute('aria-hidden','false'); mod.classList.add('open'); document.body.style.overflow='hidden';
+      // focus active button for immediate keyboard navigation
+      const focusBtn = (which === 'old' ? bOld : bNew) || mod.querySelector('.modal-close');
+      if(focusBtn) focusBtn.focus();
+      // wire close
+      mod.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', ()=>{ mod.setAttribute('aria-hidden','true'); mod.classList.remove('open'); document.body.style.overflow=''; }));
+    }
+
+    // If the page has a testament modal (pages/verse.html), open it if hash present
+    if(location.hash && location.hash.includes('testament=')){
+      const t = location.hash.split('testament=')[1].split('&')[0]; if(t && document.getElementById('testament-modal')) openTestamentModal(t);
     }
   }
 }
@@ -288,32 +345,94 @@ if(navDropdown){
   initParticles(); update();
 })();
 
-// Cursor star and click/touch burst (respects reduced-motion)
+// Polished high-design cursor with contextual badges, drag-thumbnail and interactive effects (respects reduced-motion)
 (function cursorStars(){
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const starEl = document.createElement('div'); starEl.className = 'star-cursor'; document.body.appendChild(starEl);
-  let raf = null; let x = -9999, y = -9999;
-  function moveTo(nx, ny){ x = nx; y = ny; if(!raf){ raf = requestAnimationFrame(()=>{ starEl.style.left = x + 'px'; starEl.style.top = y + 'px'; raf = null; }); } }
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return;
+  if(('ontouchstart' in window) || navigator.maxTouchPoints > 0) return; // hide on touch devices
 
-  function spawnBurst(cx, cy){
-    const count = 6 + Math.floor(Math.random()*4);
-    for(let i=0;i<count;i++){
-      const s = document.createElement('div'); s.className='star';
-      const ox = (Math.random()-0.5)*18; const oy = (Math.random()-0.8)*18;
-      s.style.left = (cx + ox) + 'px'; s.style.top = (cy + oy) + 'px';
-      s.style.background = `linear-gradient(45deg, #fff, var(--accent))`;
-      document.body.appendChild(s);
-      s.addEventListener('animationend', ()=>{ try{s.remove()}catch(e){} });
-    }
+  const el = document.createElement('div'); el.className = 'star-cursor';
+  const badge = document.createElement('div'); badge.className = 'cursor-badge'; el.appendChild(badge);
+  const thumb = document.createElement('div'); thumb.className = 'cursor-thumb'; el.appendChild(thumb);
+  document.body.appendChild(el);
+
+  let tx = -9999, ty = -9999, x = tx, y = ty; let anim;
+  const lerp = (a,b,t)=> a + (b-a)*t;
+  const interactiveSel = '[data-cursor], a,button,input,textarea,select,.btn,.feature-card,.branch-card,.team-card';
+  let isHover = false;
+
+  function onMove(e){ tx = e.clientX; ty = e.clientY; }
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', (e)=>{ const t = e.touches && e.touches[0]; if(t) { tx = t.clientX; ty = t.clientY; } }, {passive:true});
+
+  function loop(){ x = lerp(x, tx, 0.18); y = lerp(y, ty, 0.18); el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.transform = `translate(-50%,-50%) scale(${isHover?1.18:1})`; anim = requestAnimationFrame(loop); }
+  anim = requestAnimationFrame(loop);
+
+  function spawnBurst(cx, cy){ const count = 6 + Math.floor(Math.random()*6); for(let i=0;i<count;i++){ const b = document.createElement('div'); b.className = 'star-burst'; const ox = (Math.random()-0.5)*36; const oy = (Math.random()-0.5)*36; b.style.left = (cx + ox) + 'px'; b.style.top = (cy + oy) + 'px'; document.body.appendChild(b); b.addEventListener('animationend', ()=>{ try{b.remove()}catch(e){} }); } }
+
+  // Show badge from data-cursor attribute on hover
+  document.addEventListener('mouseover', (e)=>{
+    const t = e.target.closest(interactiveSel);
+    if(!t) return;
+    const txt = t.getAttribute('data-cursor') || t.getAttribute('title') || t.textContent.trim().slice(0,20);
+    if(txt){ badge.textContent = txt; badge.classList.add('visible'); }
+    if(t.matches(interactiveSel)) { isHover = true; el.classList.add('hover'); }
+  });
+  document.addEventListener('mouseout', (e)=>{
+    const t = e.target.closest(interactiveSel);
+    if(!t) return;
+    badge.classList.remove('visible'); isHover = false; el.classList.remove('hover');
+  });
+
+  // Drag-and-drop thumbnail preview on cursor when dragging files
+  let draggingFiles = false;
+  let dragThumbUrl = null;
+  function showThumb(dataUrl){ thumb.innerHTML = ''; const img = document.createElement('img'); img.src = dataUrl; thumb.appendChild(img); thumb.style.display = 'block'; }
+  function hideThumb(){ thumb.innerHTML = ''; thumb.style.display = 'none'; if(dragThumbUrl){ URL.revokeObjectURL(dragThumbUrl); dragThumbUrl = null; } }
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('contact-attachments');
+  if(dropZone){
+    ['dragenter','dragover'].forEach(ev=>{
+      dropZone.addEventListener(ev, (e)=>{ e.preventDefault(); dropZone.classList.add('drop-active'); badge.textContent = 'Drop to attach'; badge.classList.add('visible'); });
+    });
+    ['dragleave','drop'].forEach(ev=>{
+      dropZone.addEventListener(ev, (e)=>{ dropZone.classList.remove('drop-active'); badge.classList.remove('visible'); });
+    });
+
+    dropZone.addEventListener('drop', (e)=>{
+      e.preventDefault(); const files = Array.from(e.dataTransfer.files || []);
+      if(files.length){ // preview the first image on cursor
+        const f = files.find(f=>f.type && f.type.startsWith('image/')) || files[0];
+        if(f){ dragThumbUrl = URL.createObjectURL(f); showThumb(dragThumbUrl); }
+        // set input files when possible
+        try{ const dt = new DataTransfer(); files.slice(0,3).forEach(f=>dt.items.add(f)); fileInput.files = dt.files; const ev2 = new Event('change'); fileInput.dispatchEvent(ev2); }catch(err){ console.warn('Unable to assign dropped files to input'); }
+      }
+    });
   }
 
-  window.addEventListener('mousemove', (e)=> moveTo(e.clientX, e.clientY));
-  window.addEventListener('touchmove', (e)=>{ const t=e.touches[0]; if(t) moveTo(t.clientX, t.clientY); }, {passive:true});
+  // Click/capture thumbnail when file input changes
+  fileInput && fileInput.addEventListener('change', ()=>{
+    const f = Array.from(fileInput.files||[]).find(fi=>fi.type && fi.type.startsWith('image/'));
+    if(f){ const url = URL.createObjectURL(f); showThumb(url); setTimeout(()=>{ hideThumb(); }, 2000); }
+  });
 
-  window.addEventListener('mousedown', (e)=>{ starEl.classList.add('active'); spawnBurst(e.clientX, e.clientY); });
-  window.addEventListener('mouseup', ()=>{ starEl.classList.remove('active'); });
-  window.addEventListener('touchstart', (e)=>{ const t=e.touches[0]; if(t){ starEl.classList.add('active'); spawnBurst(t.clientX, t.clientY); } }, {passive:true});
-  window.addEventListener('touchend', ()=>{ starEl.classList.remove('active'); });
+  // Click burst
+  window.addEventListener('mousedown', (e)=>{ el.classList.add('active'); spawnBurst(e.clientX, e.clientY); });
+  window.addEventListener('mouseup', ()=>{ el.classList.remove('active'); });
+  window.addEventListener('touchstart', (e)=>{ const t = e.touches && e.touches[0]; if(t){ el.classList.add('active'); spawnBurst(t.clientX, t.clientY); } }, {passive:true});
+  window.addEventListener('touchend', ()=>{ el.classList.remove('active'); });
+
+  // Progress & confetti on send (hook into existing form flow by listening to custom events)
+  const progress = document.getElementById('send-progress'); const progressBar = progress && progress.querySelector('.progress-bar');
+  const confetti = document.getElementById('confetti');
+  // trigger confetti/pulse when send completes
+  document.addEventListener('dv:sendcomplete', ()=>{ try{ spawnConfetti(); }catch(e){} });
+
+  function spawnConfetti(){ if(!confetti) return; // spawn small dots around cursor
+    for(let i=0;i<18;i++){ const d = document.createElement('div'); d.className='dot'; d.style.left = (tx + (Math.random()-0.5)*120) + 'px'; d.style.top = (ty + (Math.random()-0.5)*60) + 'px'; d.style.background = ['#ffd27a','#ffc857','#ff8fab','#9be3ff'][Math.floor(Math.random()*4)]; confetti.appendChild(d); setTimeout(()=>{ try{ d.remove(); }catch(e){} }, 1200); }
+  }
+
 })();
 
 // Devotion / Prayer branches UI
@@ -333,13 +452,22 @@ if(navDropdown){
   const contentEl = document.getElementById('branch-content');
   const linkEl = document.getElementById('branch-page-link');
 
+  const icons = {
+    morning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+    evening: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    gratitude: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.78 0L12 5.6l-1.02-1a5.5 5.5 0 1 0-7.78 7.78L12 21.2l7.8-8.42a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    intercessory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-3-3.87M7 21v-2a4 4 0 0 1 3-3.87M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>',
+    confession: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M5 12h14"/></svg>'
+  };
+
   function renderBranches(){
     grid.innerHTML = '';
     branches.forEach(b=>{
       const btn = document.createElement('button');
       btn.className='branch-card';
       btn.setAttribute('data-id', b.id);
-      btn.innerHTML = `<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
+      const iconHtml = `<div class="icon">${icons[b.id] || ''}</div>`;
+      btn.innerHTML = `${iconHtml}<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
       btn.addEventListener('click', ()=>openBranch(b.id));
       grid.appendChild(btn);
     });
@@ -352,6 +480,13 @@ if(navDropdown){
     descEl.textContent = b.desc;
     contentEl.innerHTML = b.content;
     linkEl.href = `pages/devotion.html#${b.id}`;
+
+    // Apply saved font prefs to content
+    const savedFamily = localStorage.getItem('dv_font_family') || 'sans';
+    const savedSize = localStorage.getItem('dv_font_size') || '16';
+    applyFontTo(contentEl, savedFamily, savedSize);
+    branchFont.value = savedFamily; branchFontSize.value = savedSize;
+
     modal.setAttribute('aria-hidden','false');
     modal.classList.add('open');
     modal.querySelector('.modal-close').focus();
@@ -367,7 +502,103 @@ if(navDropdown){
 
   renderBranches();
 
+  // font helpers wired to modal controls
+  const branchFont = document.getElementById('branch-font');
+  const branchFontSize = document.getElementById('branch-font-size');
+  function applyFontTo(el, family, size){
+    el.classList.remove('font-sans','font-serif','font-hand');
+    if(family === 'serif') el.classList.add('font-serif');
+    else if(family === 'hand') el.classList.add('font-hand');
+    else el.classList.add('font-sans');
+    el.style.fontSize = (Number(size) || 16) + 'px';
+  }
+  if(branchFont && branchFontSize){
+    // load saved values
+    const f = localStorage.getItem('dv_font_family') || 'sans';
+    const s = localStorage.getItem('dv_font_size') || '16';
+    branchFont.value = f; branchFontSize.value = s;
+    branchFont.addEventListener('change', ()=>{ localStorage.setItem('dv_font_family', branchFont.value); applyFontTo(contentEl, branchFont.value, branchFontSize.value); });
+    branchFontSize.addEventListener('input', ()=>{ localStorage.setItem('dv_font_size', branchFontSize.value); applyFontTo(contentEl, branchFont.value, branchFontSize.value); });
+  }
+
   // open branch if hash present (#morning etc.)
   const h = location.hash.replace('#','');
   if(h){ const exists = branches.find(b=>b.id===h); if(exists) openBranch(h); }
+
+  // --- NEW: About page interactivity (accordions, counters, team bios)
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Accordions on about page
+    document.querySelectorAll('.accordion-toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        const panel = btn.nextElementSibling;
+        if(!expanded) panel.style.maxHeight = panel.scrollHeight + 'px'; else panel.style.maxHeight = null;
+      });
+    });
+
+    // Animated counters using IntersectionObserver
+    const counters = document.querySelectorAll('.stat-value');
+    const io = new IntersectionObserver((entries, ob)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          const el = en.target; const target = Number(el.dataset-target)||Number(el.dataset.target)||0; const tTarget = Number(el.dataset.target)||0; let cur = 0; const step = Math.max(1, Math.floor(tTarget/60));
+          const t = setInterval(()=>{ cur += step; if(cur>=tTarget){ el.textContent = tTarget; clearInterval(t); } else el.textContent = cur; }, 18);
+          ob.unobserve(el);
+        }
+      });
+    }, {threshold:0.4});
+    counters.forEach(c=>io.observe(c));
+
+    // Team card show bio on focus/click
+    document.querySelectorAll('.team-card').forEach(card=>{
+      card.addEventListener('click', ()=>{ const bio = card.querySelector('.bio'); bio.hidden = !bio.hidden; });
+      card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.click(); } });
+    });
+
+    // NEW: Expand/Collapse all accordions
+    const accAllBtn = document.getElementById('accordion-all');
+    if(accAllBtn){
+      let allExpanded = false;
+      accAllBtn.addEventListener('click', ()=>{
+        allExpanded = !allExpanded; accAllBtn.textContent = allExpanded ? 'Collapse all' : 'Expand all';
+        document.querySelectorAll('.accordion-toggle').forEach(btn=>{
+          btn.setAttribute('aria-expanded', String(allExpanded));
+          const panel = btn.nextElementSibling; panel.style.maxHeight = allExpanded ? panel.scrollHeight + 'px' : null;
+        });
+      });
+    }
+
+    // NEW: Subscribe form (local demo)
+    const subBtn = document.getElementById('subscribe-btn');
+    const subInput = document.getElementById('subscribe-email');
+    const subToast = document.getElementById('subscribe-toast');
+    function showSub(text){ if(!subToast) return; subToast.style.display='inline-block'; subToast.textContent = text; clearTimeout(subToast._t); subToast._t = setTimeout(()=>subToast.style.display='none',2000); }
+    if(subBtn && subInput){
+      subBtn.addEventListener('click', ()=>{
+        const email = (subInput.value||'').trim();
+        if(!email){ showSub('Enter email'); return; }
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!re.test(email)){ showSub('Enter a valid email'); return; }
+        const arr = JSON.parse(localStorage.getItem('dv_subscribers') || '[]'); if(!arr.includes(email)) arr.push(email); localStorage.setItem('dv_subscribers', JSON.stringify(arr));
+        showSub('Subscribed'); subInput.value='';
+      });
+    }
+
+    // NEW: Donate modal
+    const donateBtn = document.getElementById('donate-btn');
+    const donateModal = document.getElementById('donate-modal');
+    if(donateBtn && donateModal){
+      donateBtn.addEventListener('click', ()=>{ donateModal.setAttribute('aria-hidden','false'); donateModal.classList.add('open'); donateModal.querySelector('.modal-close').focus(); });
+      donateModal.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', ()=>{ donateModal.setAttribute('aria-hidden','true'); donateModal.classList.remove('open'); }));
+      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && donateModal.classList.contains('open')){ donateModal.setAttribute('aria-hidden','true'); donateModal.classList.remove('open'); } });
+    }
+
+    // Team action reveals (accessibility support already via focus & hover)
+    document.querySelectorAll('.team-card').forEach(card=>{
+      card.addEventListener('focusin', ()=>{ const a = card.querySelector('.team-actions'); if(a) a.style.opacity=1; });
+      card.addEventListener('focusout', ()=>{ const a = card.querySelector('.team-actions'); if(a) a.style.opacity=0; });
+    });
+
+  });
 })();

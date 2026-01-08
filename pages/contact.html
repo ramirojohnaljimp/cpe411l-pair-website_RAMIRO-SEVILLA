@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Daily Verse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header"><div class="container"><h1 class="logo">Contact</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
+  <main class="container contact-page">
+    <h2>Get in touch</h2>
+    <p class="muted">We'd love to hear from you. Use the form below for content, partnerships, feedback, or translation inquiries.</p>
+
+    <div class="contact-wrap">
+      <div class="contact-grid">
+        <div class="contact-left">
+          <h3>Contact Us</h3>
+          <p class="muted">We'd love to hear from you. For content, partnerships, feedback, or translation inquiries, use the form or reach out via socials.</p>
+
+          <div class="contact-cards">
+            <div class="contact-card">
+              <div class="contact-card-icon">✉️</div>
+              <div>
+                <strong>Email</strong>
+                <div class="muted"><a href="mailto:hello@dailyverse.example">hello@dailyverse.example</a></div>
+              </div>
+            </div>
+            <div class="contact-card">
+              <div class="contact-card-icon">🐦</div>
+              <div>
+                <strong>Twitter</strong>
+                <div class="muted"><a href="#">@DailyVerse</a></div>
+              </div>
+            </div>
+            <div class="contact-card">
+              <div class="contact-card-icon">🔗</div>
+              <div>
+                <strong>Partnerships</strong>
+                <div class="muted">Churches & Contributors — <a href="contact.html">Reach out</a></div>
+              </div>
+            </div>
+          </div>
+
+          <hr>
+          <div class="messages-frame" aria-labelledby="messages-title">
+            <div class="messages-header">
+              <h4 id="messages-title">Recent messages (demo) <span id="messages-count" class="message-badge" aria-hidden="true"></span></h4>
+              <div class="messages-controls">
+                <input id="msg-search" type="search" placeholder="Search messages" aria-label="Search messages">
+                <div class="msg-filters" role="tablist" aria-label="Message filters">
+                  <button id="filter-all" class="btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+                  <button id="filter-unread" class="btn" data-filter="unread" role="tab" aria-selected="false">Unread</button>
+                </div>
+                <button id="mark-all-read" class="btn">Mark all read</button>
+              </div>
+            </div>
+            <div class="messages-body">
+              <ul id="messages-list" class="messages-list" aria-live="polite"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-right">
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="form-field">
+              <label for="contact-name">Name</label>
+              <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true">👤</span>
+                <input id="contact-name" class="form-input" placeholder="" required data-cursor="Name" aria-describedby="name-help" />
+                <button type="button" class="input-clear" aria-label="Clear name" hidden>✕</button>
+                <span class="input-status" aria-hidden="true"></span>
+              </div>
+              <div id="name-help" class="field-help muted" hidden>Please enter your name</div>
+            </div>
+
+            <div class="form-field">
+              <label for="contact-email">Email</label>
+              <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true">✉️</span>
+                <input id="contact-email" class="form-input" type="email" placeholder="" required data-cursor="Email" aria-describedby="email-help" />
+                <button type="button" class="input-clear" aria-label="Clear email" hidden>✕</button>
+                <span class="input-status" aria-hidden="true"></span>
+              </div>
+              <div id="email-help" class="field-help muted" hidden>We'll only use this to reply</div>
+            </div>
+
+            <div class="form-field" style="position:relative">
+              <label for="contact-subject">Subject</label>
+              <div class="input-wrap">
+                <span class="input-icon" aria-hidden="true">✏️</span>
+                <input id="contact-subject" class="form-input" placeholder="" data-cursor="Subject (optional)" aria-autocomplete="list" aria-controls="subject-suggestions" aria-expanded="false" />
+                <button type="button" class="input-clear" aria-label="Clear subject" hidden>✕</button>
+                <span class="input-status" aria-hidden="true"></span>
+              </div>
+              <ul id="subject-suggestions" class="suggestions" role="listbox" aria-hidden="true"></ul>
+            </div>
+
+            <div class="form-field">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" class="form-input" rows="6" placeholder="" required data-cursor="Message"></textarea>
+            </div>
+
+            <div class="form-row" style="align-items:center">
+              <div class="char-count" id="char-count">0 / 1200</div>
+              <div style="flex:1"></div>
+              <div class="file-input-wrap">
+                <label class="drop-zone" id="drop-zone" for="contact-attachments" data-cursor="Attach">Drop images here or click to attach</label>
+                <input id="contact-attachments" type="file" accept="image/*" multiple aria-label="Attachments">
+              </div>
+            </div>
+
+            <div class="file-preview" id="file-preview" aria-live="polite"></div>
+
+            <div id="send-progress" class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><div class="progress-bar" style="width:0%"></div></div>
+
+            <div class="contact-actions">
+              <button type="submit" class="btn primary" id="send-btn" data-cursor="Send">Send Message</button>
+              <button id="send-mail" type="button" class="btn" data-cursor="Email">Send via Email</button>
+              <button id="clear-btn" type="button" class="btn" data-cursor="Clear">Clear</button>
+              <div id="contact-toast" class="notice" role="status" aria-live="polite" style="display:none;margin-left:auto">Saved locally</div>
+            </div>
+            <div class="sending-indicator" id="sending-indicator" aria-hidden="true" hidden>Sending…</div>
+            <div id="confetti" aria-hidden="true" class="confetti"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function(){
+        const form = document.getElementById('contact-form');
+        const nameI = document.getElementById('contact-name');
+        const emailI = document.getElementById('contact-email');
+        const subjectI = document.getElementById('contact-subject');
+        const msgI = document.getElementById('contact-message');
+        const toast = document.getElementById('contact-toast');
+        const list = document.getElementById('messages-list');
+        const charCount = document.getElementById('char-count');
+        const fileInput = document.getElementById('contact-attachments');
+        const preview = document.getElementById('file-preview');
+        const sendBtn = document.getElementById('send-btn');
+        const sendingIndicator = document.getElementById('sending-indicator');
+
+        const MAX_CHARS = 1200; const MAX_FILES = 3;
+
+        function showToast(text, type){ if(!toast) return; toast.style.display='inline-block'; toast.textContent = text; toast.classList.toggle('notice-success', type==='ok'); clearTimeout(toast._t); toast._t = setTimeout(()=>{ toast.style.display='none'; toast.classList.remove('notice-success'); },2300); }
+
+        function renderMessages(){
+          const msgs = JSON.parse(localStorage.getItem('dv_messages') || '[]');
+          list.innerHTML = '';
+          msgs.slice().reverse().forEach((m, idx)=>{
+            const li = document.createElement('li'); li.className='message-item';
+            const preview = (m.msg || '').slice(0,140).replace(/\n/g,' ');
+            const isUnread = !m.read;
+            li.innerHTML = `
+              <div class="msg-header">
+                <div><strong>${escapeHtml(m.name)}</strong> <span class="message-meta muted">${escapeHtml(m.email)}</span></div>
+                ${isUnread?'<span class="message-badge">NEW</span>':''}
+                <div class="msg-preview">${escapeHtml(preview)}${(m.msg||'').length>140?'…':''}</div>
+              </div>
+              <div class="msg-body">${m.subject?'<em>'+escapeHtml(m.subject)+'</em>':''}<div class="muted" style="margin-top:.4rem">${escapeHtml(m.msg)}</div></div>
+            `;
+
+            if(m.attach && m.attach.length){ const att = document.createElement('div'); att.className='msg-attach'; m.attach.forEach(a=>{ const im = document.createElement('img'); im.src = a.data; im.alt = a.name; im.title = a.name; att.appendChild(im); }); li.appendChild(att); }
+
+            // actions
+            const actions = document.createElement('div'); actions.className = 'message-actions';
+            const btnReply = document.createElement('button'); btnReply.className='btn'; btnReply.textContent = 'Reply'; btnReply.type='button'; btnReply.dataset.idx = idx;
+            const btnToggle = document.createElement('button'); btnToggle.className='btn'; btnToggle.textContent = 'Open'; btnToggle.type='button'; btnToggle.dataset.idx = idx;
+            actions.appendChild(btnToggle); actions.appendChild(btnReply);
+            li.appendChild(actions);
+
+            // click handlers
+            btnToggle.addEventListener('click', (e)=>{ e.stopPropagation(); const expanded = li.classList.toggle('expanded'); btnToggle.textContent = expanded ? 'Close' : 'Open'; if(expanded){ m.read = true; saveMessageState(msgs, idx); li.querySelector('.message-badge') && li.querySelector('.message-badge').remove(); } });
+            btnReply.addEventListener('click', (e)=>{ e.stopPropagation(); // fill form
+              subjectI.value = 'Re: ' + (m.subject || ''); msgI.value = `\n\n--- Replying to ${m.name} (${m.email}) ---\n${m.msg}\n`; charCount.textContent = `${msgI.value.length} / ${MAX_CHARS}`; msgI.focus(); validate();
+            });
+
+            // clicking the item toggles body too
+            li.addEventListener('click', ()=>{ const expanded = li.classList.toggle('expanded'); if(expanded){ li.querySelector('.msg-body').scrollIntoView({behavior:'smooth', block:'nearest'}); m.read = true; saveMessageState(msgs, idx); li.querySelector('.message-badge') && li.querySelector('.message-badge').remove(); }
+              const toggle = li.querySelector('.message-actions button'); if(toggle) toggle.textContent = li.classList.contains('expanded') ? 'Close' : 'Open';
+            });
+
+            list.appendChild(li);
+          });
+        }
+
+        function saveMessageState(all, idx){ // mark messages in storage; idx is index in original order (reverse used when rendering)
+          // convert reversed index to actual
+          const storage = JSON.parse(localStorage.getItem('dv_messages') || '[]');
+          const actualIdx = storage.length - 1 - idx;
+          if(storage[actualIdx]){ storage[actualIdx].read = true; localStorage.setItem('dv_messages', JSON.stringify(storage)); }
+        }
+
+        function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function validate(){
+          const name = nameI.value.trim(); const email = emailI.value.trim(); const m = msgI.value.trim();
+          const eRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          nameI.classList.toggle('input-valid', !!name); nameI.classList.toggle('input-invalid', !name);
+          emailI.classList.toggle('input-valid', eRe.test(email)); emailI.classList.toggle('input-invalid', !eRe.test(email));
+          msgI.classList.toggle('input-valid', m.length>0 && m.length<=MAX_CHARS); msgI.classList.toggle('input-invalid', m.length===0 || m.length>MAX_CHARS);
+          return !!name && eRe.test(email) && m.length>0 && m.length<=MAX_CHARS;
+        }
+
+        charCount.textContent = `0 / ${MAX_CHARS}`;
+        msgI.addEventListener('input', ()=>{ charCount.textContent = `${msgI.value.length} / ${MAX_CHARS}`; validate(); });
+
+        // -- Interactive inputs: clear buttons & live validation
+        const nameClear = document.querySelector('#contact-name').closest('.input-wrap').querySelector('.input-clear');
+        const emailClear = document.querySelector('#contact-email').closest('.input-wrap').querySelector('.input-clear');
+        const subjectClear = document.querySelector('#contact-subject').closest('.input-wrap').querySelector('.input-clear');
+
+        function setFilledState(input){ const f = input.closest('.form-field'); if(input.value && input.value.trim() !== '') f.classList.add('filled'); else f.classList.remove('filled'); }
+
+        function setupInput(input, opts={}){
+          const wrap = input.closest('.input-wrap'); const clear = wrap.querySelector('.input-clear'); const status = wrap.querySelector('.input-status'); const field = input.closest('.form-field'); const help = field.querySelector('.field-help');
+          const isEmail = opts.type === 'email';
+          function update(){ setFilledState(input); clear.hidden = !input.value; if(isEmail){ const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value); input.setAttribute('aria-invalid', String(!ok && input.value.length>0)); status.textContent = input.value ? (ok ? '✓' : '✕') : ''; status.style.color = ok ? 'var(--accent)' : 'rgba(255,90,90,0.9)'; }
+            if(help){ help.hidden = !input.value; }
+          }
+          clear.addEventListener('click', ()=>{ input.value=''; input.focus(); update(); validate(); });
+          input.addEventListener('input', ()=>{ update(); validate(); });
+          input.addEventListener('focus', ()=>{ field.classList.add('focused'); }); input.addEventListener('blur', ()=>{ field.classList.remove('focused'); });
+          update();
+        }
+
+        setupInput(nameI, {});
+        setupInput(emailI, {type:'email'});
+
+        // -- Subject autocomplete
+        const subjectInput = document.getElementById('contact-subject');
+        const subjectList = document.getElementById('subject-suggestions');
+        const SUBJECTS = ['Translation Inquiry','Partnership','Website Feedback','Content Contribution','Bug Report','Donate','Volunteer','Other'];
+        let subjActive = -1;
+
+        function renderSubjectSuggestions(filter=''){
+          subjectList.innerHTML = '';
+          const matches = SUBJECTS.filter(s=>s.toLowerCase().includes(filter.toLowerCase()));
+          if(matches.length === 0){ subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; subjectInput.setAttribute('aria-expanded','false'); return; }
+          matches.forEach((s,i)=>{ const li = document.createElement('li'); li.className='suggestion-item'; li.role='option'; li.id = 'sugg-'+i; li.textContent = s; li.addEventListener('click', ()=>{ subjectInput.value = s; subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; subjectInput.focus(); setFilledState(subjectInput); validate(); }); subjectList.appendChild(li); });
+          subjectList.style.display='block'; subjectList.setAttribute('aria-hidden','false'); subjectInput.setAttribute('aria-expanded','true'); subjActive = -1;
+        }
+
+        subjectInput.addEventListener('input', ()=>{ renderSubjectSuggestions(subjectInput.value); setFilledState(subjectInput); subjectClear.hidden = !subjectInput.value; });
+        subjectInput.addEventListener('keydown', (e)=>{
+          const items = Array.from(subjectList.querySelectorAll('.suggestion-item'));
+          if(subjectList.getAttribute('aria-hidden')==='true') return;
+          if(e.key === 'ArrowDown'){ e.preventDefault(); subjActive = Math.min(items.length-1, subjActive+1); items.forEach((it,idx)=> it.classList.toggle('active', idx===subjActive)); if(items[subjActive]) items[subjActive].scrollIntoView({block:'nearest'}); }
+          else if(e.key === 'ArrowUp'){ e.preventDefault(); subjActive = Math.max(0, subjActive-1); items.forEach((it,idx)=> it.classList.toggle('active', idx===subjActive)); if(items[subjActive]) items[subjActive].scrollIntoView({block:'nearest'}); }
+          else if(e.key === 'Enter'){ e.preventDefault(); if(subjActive>=0 && items[subjActive]) items[subjActive].click(); subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; }
+          else if(e.key === 'Escape'){ subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; }
+        });
+        subjectInput.addEventListener('blur', ()=>{ setTimeout(()=>{ subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; }, 120); });
+        subjectClear.addEventListener('click', ()=>{ subjectInput.value=''; subjectInput.focus(); subjectList.setAttribute('aria-hidden','true'); subjectList.style.display='none'; setFilledState(subjectInput); });
+
+        // ensure filled states on load
+        [nameI, emailI, subjectInput, msgI].forEach(i=> setFilledState(i));
+
+        // file input preview
+        fileInput.addEventListener('change', ()=>{
+          const files = Array.from(fileInput.files || []); preview.innerHTML = '';
+          files.slice(0,MAX_FILES).forEach(f=>{
+            if(!f.type.startsWith('image/')) return;
+            const fr = new FileReader(); fr.onload = ()=>{
+              const d = fr.result; const el = document.createElement('div'); el.className='thumb'; el.innerHTML = `<img src="${d}" alt="${escapeHtml(f.name)}"><button class="btn" data-name="${escapeHtml(f.name)}">Remove</button>`; preview.appendChild(el);
+            }; fr.readAsDataURL(f);
+          });
+        });
+
+        preview.addEventListener('click', (e)=>{
+          const b = e.target.closest('button[data-name]'); if(!b) return; const name = b.getAttribute('data-name');
+          // remove file from input (rebuild list)
+          const files = Array.from(fileInput.files || []).filter(f=>f.name!==name);
+          const dt = new DataTransfer(); files.forEach(f=>dt.items.add(f)); fileInput.files = dt.files; b.closest('.thumb').remove();
+        });
+
+        function collectAttachments(){ const arr = []; Array.from(fileInput.files||[]).slice(0,MAX_FILES).forEach(f=>{ arr.push({name:f.name}); }); return arr; }
+
+        // message controls: search / filter / mark all
+        const msgSearch = document.getElementById('msg-search');
+        const filterAllBtn = document.getElementById('filter-all');
+        const filterUnreadBtn = document.getElementById('filter-unread');
+        const markAllBtn = document.getElementById('mark-all-read');
+        const messagesCount = document.getElementById('messages-count');
+        let currentFilter = 'all'; let currentSearch = '';
+
+        if(msgSearch){ msgSearch.addEventListener('input', ()=>{ currentSearch = msgSearch.value.trim().toLowerCase(); renderMessages(); }); }
+        if(filterAllBtn && filterUnreadBtn){
+          filterAllBtn.addEventListener('click', ()=>{ currentFilter='all'; filterAllBtn.classList.add('active'); filterUnreadBtn.classList.remove('active'); filterAllBtn.setAttribute('aria-selected','true'); filterUnreadBtn.setAttribute('aria-selected','false'); renderMessages(); });
+          filterUnreadBtn.addEventListener('click', ()=>{ currentFilter='unread'; filterAllBtn.classList.remove('active'); filterUnreadBtn.classList.add('active'); filterAllBtn.setAttribute('aria-selected','false'); filterUnreadBtn.setAttribute('aria-selected','true'); renderMessages(); });
+        }
+        if(markAllBtn){ markAllBtn.addEventListener('click', ()=>{ const storage = JSON.parse(localStorage.getItem('dv_messages')||'[]'); storage.forEach(m=>m.read = true); localStorage.setItem('dv_messages', JSON.stringify(storage)); renderMessages(); showToast('All marked read'); }); }
+
+        function renderMessages(){
+          const msgs = JSON.parse(localStorage.getItem('dv_messages') || '[]');
+          let items = msgs.slice().reverse();
+          if(currentFilter === 'unread') items = items.filter(m=>!m.read);
+          if(currentSearch) items = items.filter(m=>{ const hay = ((m.name||'') + ' ' + (m.email||'') + ' ' + (m.subject||'') + ' ' + (m.msg||'')).toLowerCase(); return hay.indexOf(currentSearch) !== -1; });
+
+          list.innerHTML = '';
+          messagesCount.textContent = items.length || '';
+          if(items.length === 0){ list.innerHTML = '<li class="muted">No messages to show</li>'; return; }
+
+          items.forEach((m, idx)=>{
+            const li = document.createElement('li'); li.className='message-item'; li.tabIndex = 0;
+            const preview = (m.msg || '').slice(0,140).replace(/\n/g,' ');
+            const isUnread = !m.read;
+            li.innerHTML = `
+              <div class="msg-header">
+                <div><strong>${escapeHtml(m.name)}</strong> <span class="message-meta muted">${escapeHtml(m.email)}</span></div>
+                ${isUnread?'<span class="message-badge">NEW</span>':''}
+                <div class="msg-preview">${escapeHtml(preview)}${(m.msg||'').length>140?'…':''}</div>
+              </div>
+              <div class="msg-body">${m.subject?'<em>'+escapeHtml(m.subject)+'</em>':''}<div class="muted" style="margin-top:.4rem">${escapeHtml(m.msg)}</div></div>
+            `;
+
+            if(m.attach && m.attach.length){ const att = document.createElement('div'); att.className='msg-attach'; m.attach.forEach(a=>{ const im = document.createElement('img'); im.src = a.data; im.alt = a.name; im.title = a.name; att.appendChild(im); }); li.appendChild(att); }
+
+            // actions
+            const actions = document.createElement('div'); actions.className = 'message-actions';
+            const btnToggle = document.createElement('button'); btnToggle.className='btn'; btnToggle.textContent = 'Open'; btnToggle.type='button'; btnToggle.dataset.idx = idx;
+            const btnReply = document.createElement('button'); btnReply.className='btn'; btnReply.textContent = 'Reply'; btnReply.type='button'; btnReply.dataset.idx = idx;
+            const btnDelete = document.createElement('button'); btnDelete.className='btn'; btnDelete.textContent = 'Delete'; btnDelete.type='button'; btnDelete.dataset.idx = idx;
+            actions.appendChild(btnToggle); actions.appendChild(btnReply); actions.appendChild(btnDelete);
+            li.appendChild(actions);
+
+            // click handlers
+            btnToggle.addEventListener('click', (e)=>{ e.stopPropagation(); const expanded = li.classList.toggle('expanded'); btnToggle.textContent = expanded ? 'Close' : 'Open'; if(expanded){ m.read = true; saveMessageState(msgs, idx); li.querySelector('.message-badge') && li.querySelector('.message-badge').remove(); } });
+            btnReply.addEventListener('click', (e)=>{ e.stopPropagation(); // fill form
+              subjectI.value = 'Re: ' + (m.subject || ''); msgI.value = `\n\n--- Replying to ${m.name} (${m.email}) ---\n${m.msg}\n`; charCount.textContent = `${msgI.value.length} / ${MAX_CHARS}`; msgI.focus(); validate();
+            });
+            btnDelete.addEventListener('click', (e)=>{ e.stopPropagation(); deleteMessageAtIdx(idx); });
+
+            // keyboard access (Enter/Space to open, Delete to remove)
+            li.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); btnToggle.click(); } if(e.key === 'Delete'){ deleteMessageAtIdx(idx); } });
+
+            // clicking the item toggles body too
+            li.addEventListener('click', ()=>{ const expanded = li.classList.toggle('expanded'); if(expanded){ li.querySelector('.msg-body').scrollIntoView({behavior:'smooth', block:'nearest'}); m.read = true; saveMessageState(msgs, idx); li.querySelector('.message-badge') && li.querySelector('.message-badge').remove(); }
+              const toggle = li.querySelector('.message-actions button'); if(toggle) toggle.textContent = li.classList.contains('expanded') ? 'Close' : 'Open';
+            });
+
+            list.appendChild(li);
+          });
+        }
+
+        function deleteMessageAtIdx(idx){ const storage = JSON.parse(localStorage.getItem('dv_messages') || '[]'); const actual = storage.length - 1 - idx; if(storage[actual]){ storage.splice(actual, 1); localStorage.setItem('dv_messages', JSON.stringify(storage)); renderMessages(); showToast('Message deleted', 'ok'); } }
+
+          const files = Array.from(fileInput.files||[]).slice(0,MAX_FILES);
+          const readers = files.map(f=>new Promise(res=>{ const r = new FileReader(); r.onload=()=>res({name:f.name,data:r.result}); r.readAsDataURL(f); }));
+
+          Promise.all(readers).then(att=>{
+            const obj = {name:nameI.value.trim(), email:emailI.value.trim(), subject:subjectI.value.trim(), msg:msgI.value.trim(), ts:Date.now(), attach:att};
+            const arr = JSON.parse(localStorage.getItem('dv_messages')||'[]'); arr.push(obj); localStorage.setItem('dv_messages', JSON.stringify(arr));
+
+            const tick = setInterval(()=>{
+              const p = Math.min(1,(performance.now()-start)/duration);
+              bar.style.width = Math.floor(p*100) + '%'; prog.setAttribute('aria-valuenow', Math.floor(p*100));
+              if(p>=1){ clearInterval(tick);
+                sendBtn.disabled = false; sendingIndicator.hidden = true; sendingIndicator.setAttribute('aria-hidden','true');
+                setTimeout(()=>{
+                  prog.hidden = true; bar.style.width = '0%'; renderMessages(); showToast('Message sent (demo)', 'ok');
+                  // reset inputs
+                  nameI.value=''; emailI.value=''; subjectI.value=''; msgI.value=''; fileInput.value=''; preview.innerHTML=''; charCount.textContent = `0 / ${MAX_CHARS}`;
+                  // notify cursor to spawn confetti
+                  document.dispatchEvent(new Event('dv:sendcomplete'));
+                }, 240);
+              }
+            }, 60);
+
+          }).catch(()=>{
+            sendBtn.disabled = false; sendingIndicator.hidden = true; sendingIndicator.setAttribute('aria-hidden','true'); showToast('Error during sending', 'err');
+          });
+        });
+
+        document.getElementById('send-mail').addEventListener('click', ()=>{
+          const subject = encodeURIComponent(subjectI.value || 'Message from Daily Verse');
+          const body = encodeURIComponent((msgI.value||'') + '\n\nFrom: ' + (nameI.value||'') + ' <' + (emailI.value||'') + '>');
+          window.location.href = `mailto:hello@dailyverse.example?subject=${subject}&body=${body}`;
+        });
+
+        renderMessages();
+      })();
+    </script>
+  </main>
+  <footer class="site-footer"><div class="container">© 2026 Daily Verse</div></footer>
+</body>
+</html>
