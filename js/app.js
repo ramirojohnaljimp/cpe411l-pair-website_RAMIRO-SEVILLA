@@ -46,6 +46,18 @@ const translateSelect = document.getElementById('translate');
 
 // header search (separate input in header) and dropdown will be handled if present on page
 const headerSearch = document.getElementById('header-search');
+const footerVersion = document.getElementById('footer-version');
+
+function updateFooterVersion(){
+  if(!footerVersion) return;
+  let text = 'KJV';
+  if(translateSelect && translateSelect.options && translateSelect.selectedIndex >= 0){
+    text = translateSelect.options[translateSelect.selectedIndex].text || translateSelect.value;
+  } else if(translateSelect && translateSelect.value){
+    text = translateSelect.value;
+  }
+  footerVersion.textContent = text;
+}
 
 // load preferred translation
 const savedTrans = localStorage.getItem('dv_trans');
@@ -112,7 +124,7 @@ shareBtn.addEventListener('click', ()=>{
   navigator.clipboard.writeText(url).then(()=>showToast('Share link copied'));
 });
 
-translateSelect.addEventListener('change', ()=>{ localStorage.setItem('dv_trans', translateSelect.value); render(); });
+translateSelect.addEventListener('change', ()=>{ localStorage.setItem('dv_trans', translateSelect.value); render(); updateFooterVersion(); });
 
 searchInput.addEventListener('input', (e)=>{
   const q = e.target.value.trim().toLowerCase();
@@ -144,6 +156,7 @@ window.addEventListener('keydown', (e)=>{
     if(headerSearch) headerSearch.value = val;
   }
   render();
+  updateFooterVersion();
 })();
 
 // Respect reduced motion for typing
