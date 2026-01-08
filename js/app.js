@@ -288,32 +288,94 @@ if(navDropdown){
   initParticles(); update();
 })();
 
-// Cursor star and click/touch burst (respects reduced-motion)
+// Polished high-design cursor with contextual badges, drag-thumbnail and interactive effects (respects reduced-motion)
 (function cursorStars(){
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const starEl = document.createElement('div'); starEl.className = 'star-cursor'; document.body.appendChild(starEl);
-  let raf = null; let x = -9999, y = -9999;
-  function moveTo(nx, ny){ x = nx; y = ny; if(!raf){ raf = requestAnimationFrame(()=>{ starEl.style.left = x + 'px'; starEl.style.top = y + 'px'; raf = null; }); } }
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) return;
+  if(('ontouchstart' in window) || navigator.maxTouchPoints > 0) return; // hide on touch devices
 
-  function spawnBurst(cx, cy){
-    const count = 6 + Math.floor(Math.random()*4);
-    for(let i=0;i<count;i++){
-      const s = document.createElement('div'); s.className='star';
-      const ox = (Math.random()-0.5)*18; const oy = (Math.random()-0.8)*18;
-      s.style.left = (cx + ox) + 'px'; s.style.top = (cy + oy) + 'px';
-      s.style.background = `linear-gradient(45deg, #fff, var(--accent))`;
-      document.body.appendChild(s);
-      s.addEventListener('animationend', ()=>{ try{s.remove()}catch(e){} });
-    }
+  const el = document.createElement('div'); el.className = 'star-cursor';
+  const badge = document.createElement('div'); badge.className = 'cursor-badge'; el.appendChild(badge);
+  const thumb = document.createElement('div'); thumb.className = 'cursor-thumb'; el.appendChild(thumb);
+  document.body.appendChild(el);
+
+  let tx = -9999, ty = -9999, x = tx, y = ty; let anim;
+  const lerp = (a,b,t)=> a + (b-a)*t;
+  const interactiveSel = '[data-cursor], a,button,input,textarea,select,.btn,.feature-card,.branch-card,.team-card';
+  let isHover = false;
+
+  function onMove(e){ tx = e.clientX; ty = e.clientY; }
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('touchmove', (e)=>{ const t = e.touches && e.touches[0]; if(t) { tx = t.clientX; ty = t.clientY; } }, {passive:true});
+
+  function loop(){ x = lerp(x, tx, 0.18); y = lerp(y, ty, 0.18); el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.transform = `translate(-50%,-50%) scale(${isHover?1.18:1})`; anim = requestAnimationFrame(loop); }
+  anim = requestAnimationFrame(loop);
+
+  function spawnBurst(cx, cy){ const count = 6 + Math.floor(Math.random()*6); for(let i=0;i<count;i++){ const b = document.createElement('div'); b.className = 'star-burst'; const ox = (Math.random()-0.5)*36; const oy = (Math.random()-0.5)*36; b.style.left = (cx + ox) + 'px'; b.style.top = (cy + oy) + 'px'; document.body.appendChild(b); b.addEventListener('animationend', ()=>{ try{b.remove()}catch(e){} }); } }
+
+  // Show badge from data-cursor attribute on hover
+  document.addEventListener('mouseover', (e)=>{
+    const t = e.target.closest(interactiveSel);
+    if(!t) return;
+    const txt = t.getAttribute('data-cursor') || t.getAttribute('title') || t.textContent.trim().slice(0,20);
+    if(txt){ badge.textContent = txt; badge.classList.add('visible'); }
+    if(t.matches(interactiveSel)) { isHover = true; el.classList.add('hover'); }
+  });
+  document.addEventListener('mouseout', (e)=>{
+    const t = e.target.closest(interactiveSel);
+    if(!t) return;
+    badge.classList.remove('visible'); isHover = false; el.classList.remove('hover');
+  });
+
+  // Drag-and-drop thumbnail preview on cursor when dragging files
+  let draggingFiles = false;
+  let dragThumbUrl = null;
+  function showThumb(dataUrl){ thumb.innerHTML = ''; const img = document.createElement('img'); img.src = dataUrl; thumb.appendChild(img); thumb.style.display = 'block'; }
+  function hideThumb(){ thumb.innerHTML = ''; thumb.style.display = 'none'; if(dragThumbUrl){ URL.revokeObjectURL(dragThumbUrl); dragThumbUrl = null; } }
+
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('contact-attachments');
+  if(dropZone){
+    ['dragenter','dragover'].forEach(ev=>{
+      dropZone.addEventListener(ev, (e)=>{ e.preventDefault(); dropZone.classList.add('drop-active'); badge.textContent = 'Drop to attach'; badge.classList.add('visible'); });
+    });
+    ['dragleave','drop'].forEach(ev=>{
+      dropZone.addEventListener(ev, (e)=>{ dropZone.classList.remove('drop-active'); badge.classList.remove('visible'); });
+    });
+
+    dropZone.addEventListener('drop', (e)=>{
+      e.preventDefault(); const files = Array.from(e.dataTransfer.files || []);
+      if(files.length){ // preview the first image on cursor
+        const f = files.find(f=>f.type && f.type.startsWith('image/')) || files[0];
+        if(f){ dragThumbUrl = URL.createObjectURL(f); showThumb(dragThumbUrl); }
+        // set input files when possible
+        try{ const dt = new DataTransfer(); files.slice(0,3).forEach(f=>dt.items.add(f)); fileInput.files = dt.files; const ev2 = new Event('change'); fileInput.dispatchEvent(ev2); }catch(err){ console.warn('Unable to assign dropped files to input'); }
+      }
+    });
   }
 
-  window.addEventListener('mousemove', (e)=> moveTo(e.clientX, e.clientY));
-  window.addEventListener('touchmove', (e)=>{ const t=e.touches[0]; if(t) moveTo(t.clientX, t.clientY); }, {passive:true});
+  // Click/capture thumbnail when file input changes
+  fileInput && fileInput.addEventListener('change', ()=>{
+    const f = Array.from(fileInput.files||[]).find(fi=>fi.type && fi.type.startsWith('image/'));
+    if(f){ const url = URL.createObjectURL(f); showThumb(url); setTimeout(()=>{ hideThumb(); }, 2000); }
+  });
 
-  window.addEventListener('mousedown', (e)=>{ starEl.classList.add('active'); spawnBurst(e.clientX, e.clientY); });
-  window.addEventListener('mouseup', ()=>{ starEl.classList.remove('active'); });
-  window.addEventListener('touchstart', (e)=>{ const t=e.touches[0]; if(t){ starEl.classList.add('active'); spawnBurst(t.clientX, t.clientY); } }, {passive:true});
-  window.addEventListener('touchend', ()=>{ starEl.classList.remove('active'); });
+  // Click burst
+  window.addEventListener('mousedown', (e)=>{ el.classList.add('active'); spawnBurst(e.clientX, e.clientY); });
+  window.addEventListener('mouseup', ()=>{ el.classList.remove('active'); });
+  window.addEventListener('touchstart', (e)=>{ const t = e.touches && e.touches[0]; if(t){ el.classList.add('active'); spawnBurst(t.clientX, t.clientY); } }, {passive:true});
+  window.addEventListener('touchend', ()=>{ el.classList.remove('active'); });
+
+  // Progress & confetti on send (hook into existing form flow by listening to custom events)
+  const progress = document.getElementById('send-progress'); const progressBar = progress && progress.querySelector('.progress-bar');
+  const confetti = document.getElementById('confetti');
+  // trigger confetti/pulse when send completes
+  document.addEventListener('dv:sendcomplete', ()=>{ try{ spawnConfetti(); }catch(e){} });
+
+  function spawnConfetti(){ if(!confetti) return; // spawn small dots around cursor
+    for(let i=0;i<18;i++){ const d = document.createElement('div'); d.className='dot'; d.style.left = (tx + (Math.random()-0.5)*120) + 'px'; d.style.top = (ty + (Math.random()-0.5)*60) + 'px'; d.style.background = ['#ffd27a','#ffc857','#ff8fab','#9be3ff'][Math.floor(Math.random()*4)]; confetti.appendChild(d); setTimeout(()=>{ try{ d.remove(); }catch(e){} }, 1200); }
+  }
+
 })();
 
 // Devotion / Prayer branches UI
