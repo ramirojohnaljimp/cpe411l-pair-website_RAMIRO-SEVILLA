@@ -44,7 +44,8 @@ html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Seg
 
 /* Typewriter reveal */
 .reveal{overflow:hidden;display:inline-block}
-.reveal span{opacity:0;display:inline-block;transform:translateY(.06em)}
+.reveal .word{opacity:0;display:inline-block;transform:translateY(.18em);margin-right:0.6ch}
+.verse-text{word-spacing:0.6ch}
 
 /* reduced motion */
 @media (prefers-reduced-motion: reduce){

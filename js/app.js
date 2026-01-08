@@ -37,18 +37,23 @@ function render(){
 }
 
 function typeWrite(str){
-  // split into chars and reveal gradually for a simple typewriter
+  // split into words and reveal each word with spacing for readability
   verseText.innerHTML = '';
   const wrapper = document.createElement('span'); wrapper.className='reveal';
-  str.split('').forEach((ch,i)=>{
-    const s = document.createElement('span'); s.textContent = ch;
-    s.style.transition = `opacity .18s ease ${i*9}ms, transform .18s ease ${i*9}ms`;
+  const words = String(str).split(' ');
+  words.forEach((w,i)=>{
+    const s = document.createElement('span');
+    s.className = 'word';
+    s.textContent = w;
+    s.style.transition = `opacity .22s ease ${i*120}ms, transform .22s ease ${i*120}ms`;
     wrapper.appendChild(s);
+    // add an actual space so copying preserves spacing
+    if(i < words.length - 1) wrapper.appendChild(document.createTextNode(' '));
   });
   verseText.appendChild(wrapper);
-  // force reflow then reveal
+  // reveal after layout
   requestAnimationFrame(()=>{
-    wrapper.querySelectorAll('span').forEach(sp=>{sp.style.opacity=1;sp.style.transform='translateY(0)'});
+    wrapper.querySelectorAll('.word').forEach(sp=>{sp.style.opacity=1;sp.style.transform='translateY(0)'});
   });
 }
 
