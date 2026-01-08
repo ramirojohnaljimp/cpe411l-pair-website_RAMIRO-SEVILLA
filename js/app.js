@@ -1,10 +1,35 @@
-// Simple verse app with animations and interactivity
+// Simple verse app with animations and interactivity (with translations)
 const verses = [
-  {ref:'John 3:16', text:'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.'},
-  {ref:'Psalm 23:1', text:'The LORD is my shepherd; I shall not want.'},
-  {ref:'Romans 8:28', text:'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.'},
-  {ref:'Philippians 4:13', text:'I can do all things through Christ which strengtheneth me.'},
-  {ref:'Proverbs 3:5', text:'Trust in the LORD with all thine heart; and lean not unto thine own understanding.'}
+  {ref:'John 3:16', text:{
+    KJV:'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.',
+    EN:'God loved the world and gave his Son so that everyone who believes in him will have eternal life.',
+    TL:'Mahal ng Diyos ang mundo kaya ibinigay niya ang kanyang Anak, upang ang maniwala ay magkaroon ng buhay na walang hanggan.',
+    ES:'Dios amó al mundo y entregó a su Hijo para que todo el que cree en él tenga vida eterna.'
+  }},
+  {ref:'Psalm 23:1', text:{
+    KJV:'The LORD is my shepherd; I shall not want.',
+    EN:'The Lord is my shepherd; I lack nothing.',
+    TL:'Ang Panginoon ang aking pastol; hindi ako magkukulang.',
+    ES:'El Señor es mi pastor; nada me faltará.'
+  }},
+  {ref:'Romans 8:28', text:{
+    KJV:'And we know that all things work together for good to them that love God, to them who are the called according to his purpose.',
+    EN:'We know that God causes everything to work together for good for those who love him and are called according to his purpose.',
+    TL:'Alam namin na ang lahat ng bagay ay gumagana para sa kabutihan para sa mga nagmamahal sa Diyos, ayon sa kanyang layunin.',
+    ES:'Sabemos que Dios dispone todas las cosas para bien de los que le aman, conforme a su propósito.'
+  }},
+  {ref:'Philippians 4:13', text:{
+    KJV:'I can do all things through Christ which strengtheneth me.',
+    EN:'I can do all things through Christ who strengthens me.',
+    TL:'Lahat ng bagay ay kaya kong gawin sa pamamagitan ni Cristo na nagpapalakas sa akin.',
+    ES:'Todo lo puedo en Cristo que me fortalece.'
+  }},
+  {ref:'Proverbs 3:5', text:{
+    KJV:'Trust in the LORD with all thine heart; and lean not unto thine own understanding.',
+    EN:'Trust in the Lord with all your heart and lean not on your own understanding.',
+    TL:'Magtiwala ka sa Panginoon nang buong puso at huwag kang umasa sa sarili mong pang-unawa.',
+    ES:'Confía en el Señor con todo tu corazón y no te apoyes en tu propia prudencia.'
+  }}
 ];
 
 let idx = 0;
@@ -17,6 +42,17 @@ const copyBtn = document.getElementById('copy-btn');
 const shareBtn = document.getElementById('share-btn');
 const toast = document.getElementById('toast');
 const searchInput = document.getElementById('search-input');
+const translateSelect = document.getElementById('translate');
+
+// load preferred translation
+const savedTrans = localStorage.getItem('dv_trans');
+if(savedTrans) translateSelect.value = savedTrans;
+
+function getText(v){
+  const key = translateSelect.value || 'KJV';
+  return (v.text && v.text[key]) ? v.text[key] : (v.text && v.text['KJV']) || '';
+}
+
 
 function showToast(msg){
   toast.textContent = msg; toast.classList.add('show');
@@ -32,8 +68,8 @@ function setIndex(i){
 
 function render(){
   const v = verses[idx];
-  verseRef.textContent = v.ref;
-  typeWrite(v.text);
+  verseRef.textContent = v.ref + (translateSelect.value && translateSelect.value !== 'KJV' ? ` — ${translateSelect.options[translateSelect.selectedIndex].text}` : '');
+  typeWrite(getText(v));
 }
 
 function typeWrite(str){
@@ -65,17 +101,23 @@ randomBtn.addEventListener('click', randomVerse);
 nextBtn.addEventListener('click', next);
 prevBtn.addEventListener('click', prev);
 copyBtn.addEventListener('click', ()=>{
-  navigator.clipboard.writeText(`${verses[idx].text} — ${verses[idx].ref}`).then(()=>showToast('Copied to clipboard'));
+  const text = `${getText(verses[idx])} — ${verses[idx].ref}`;
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied to clipboard'));
 });
 shareBtn.addEventListener('click', ()=>{
-  const url = location.origin + location.pathname + `#v=${idx}`;
+  const url = location.origin + location.pathname + `#v=${idx}&t=${translateSelect.value || 'KJV'}`;
   navigator.clipboard.writeText(url).then(()=>showToast('Share link copied'));
 });
+
+translateSelect.addEventListener('change', ()=>{ localStorage.setItem('dv_trans', translateSelect.value); render(); });
 
 searchInput.addEventListener('input', (e)=>{
   const q = e.target.value.trim().toLowerCase();
   if(!q){setIndex(0);return}
-  const found = verses.findIndex(v=>v.ref.toLowerCase().includes(q) || v.text.toLowerCase().includes(q));
+  const found = verses.findIndex(v=>{
+    if(v.ref.toLowerCase().includes(q)) return true;
+    return Object.values(v.text).some(txt=> txt.toLowerCase().includes(q));
+  });
   if(found>=0) setIndex(found);
 });
 
@@ -89,7 +131,9 @@ window.addEventListener('keydown', (e)=>{
 // initialize from hash or random
 (function init(){
   const m = location.hash.match(/v=(\d+)/);
+  const t = location.hash.match(/t=([A-Za-z_\-]+)/);
   if(m) idx = Number(m[1])%verses.length;
+  if(t && t[1]){ translateSelect.value = t[1]; localStorage.setItem('dv_trans', t[1]); }
   render();
 })();
 
