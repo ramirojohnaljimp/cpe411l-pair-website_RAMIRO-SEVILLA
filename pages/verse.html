@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All Verses — Daily Verse</title>
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header"><div class="container"><h1 class="logo">All Verses</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
+  <main class="container">
+    <ul id="verse-list" class="verse-list"></ul>
+  </main>
+  <script>
+    // small renderer for verse list reusing same sample data
+    const verses = [{ref:'John 3:16', text:'For God so loved the world, that he gave his only begotten Son...'}, {ref:'Psalm 23:1', text:'The LORD is my shepherd; I shall not want.'}, {ref:'Romans 8:28', text:'And we know that all things work together for good.'}];
+    const ul = document.getElementById('verse-list');
+    verses.forEach((v,i)=>{ const li=document.createElement('li'); li.innerHTML=`<strong>${v.ref}</strong> — ${v.text} <a href="../#v=${i}">Open</a>`; ul.appendChild(li)});
+  </script>
+</body>
+</html>
