@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Verse — Bible Verses</title>
+  <meta name="description" content="Daily Bible verse with simple animations and interactivity" />
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">Daily Verse</h1>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="/">Home</a>
+        <a href="pages/verse.html">All Verses</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="verse-card" id="verse-card" role="region" aria-live="polite">
+        <div id="bg-anim" class="bg-anim" aria-hidden="true"></div>
+        <blockquote id="verse-text" class="verse-text"></blockquote>
+        <div id="verse-ref" class="verse-ref" aria-hidden="true"></div>
+      </div>
+
+      <div class="controls">
+        <button id="prev-btn" class="btn" aria-label="Previous verse">◀</button>
+        <button id="random-btn" class="btn primary">Random Verse</button>
+        <button id="next-btn" class="btn" aria-label="Next verse">▶</button>
+        <button id="copy-btn" class="btn" title="Copy verse">Copy</button>
+        <button id="share-btn" class="btn" title="Share verse">Share</button>
+      </div>
+
+      <div class="extras">
+        <label for="translate">Translation</label>
+        <select id="translate" aria-label="Choose translation">
+          <option value="KJV">English — KJV</option>
+          <option value="EN">English — Simple</option>
+          <option value="TL">Filipino — Filipino (Tagalog)</option>
+          <option value="ES">Spanish — Español</option>
+        </select>
+        <input id="search-input" placeholder="Search book (e.g., John)" aria-label="Search book">
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© Daily Verse — Simple demo</div>
+  </footer>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
