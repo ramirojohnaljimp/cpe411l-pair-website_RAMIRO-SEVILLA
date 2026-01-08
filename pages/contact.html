@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Daily Verse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header"><div class="container"><h1 class="logo">Contact</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
+  <main class="container">
+    <h2>Get in touch</h2>
+    <p class="muted">We'd love to hear from you. Use the form below for content, partnerships, feedback, or translation inquiries.</p>
+
+    <div class="contact-wrap">
+      <form id="contact-form" class="contact-form" novalidate>
+        <div style="display:flex;gap:.5rem">
+          <input id="contact-name" placeholder="Your name" required>
+          <input id="contact-email" placeholder="Your email" required>
+        </div>
+        <input id="contact-subject" placeholder="Subject (optional)">
+        <textarea id="contact-message" rows="5" placeholder="Message" required></textarea>
+        <div class="contact-actions">
+          <button type="submit" class="btn primary">Send Message</button>
+          <button id="send-mail" type="button" class="btn">Send via Email</button>
+          <div id="contact-toast" class="notice" role="status" aria-live="polite" style="display:none;margin-left:auto">Saved locally</div>
+        </div>
+      </form>
+
+      <div class="contact-methods">
+        <div class="contact-method"><span class="contact-icon">✉️</span><div><strong>Email</strong><div class="muted"><a href="mailto:hello@dailyverse.example">hello@dailyverse.example</a></div></div></div>
+        <div class="contact-method"><span class="contact-icon">🐦</span><div><strong>Twitter</strong><div class="muted"><a href="#">@DailyVerse</a></div></div></div>
+        <div class="contact-method"><span class="contact-icon">👍</span><div><strong>Facebook</strong><div class="muted"><a href="#">/DailyVerse</a></div></div></div>
+      </div>
+
+      <hr>
+      <h4>Recent messages (demo)</h4>
+      <ul id="messages-list" style="list-style:none;padding:0;margin:0"></ul>
+    </div>
+
+    <script>
+      (function(){
+        const form = document.getElementById('contact-form');
+        const nameI = document.getElementById('contact-name');
+        const emailI = document.getElementById('contact-email');
+        const subjectI = document.getElementById('contact-subject');
+        const msgI = document.getElementById('contact-message');
+        const toast = document.getElementById('contact-toast');
+        const list = document.getElementById('messages-list');
+
+        function showToast(text){ toast.style.display='inline-block'; toast.textContent = text; setTimeout(()=>toast.style.display='none',2000); }
+
+        function loadMessages(){
+          const msgs = JSON.parse(localStorage.getItem('dv_messages') || '[]');
+          list.innerHTML = '';
+          msgs.slice().reverse().forEach(m=>{
+            const li = document.createElement('li'); li.style.padding='.6rem 0'; li.innerHTML = `<strong>${m.name}</strong> <small class="muted">${m.email} — ${new Date(m.ts).toLocaleString()}</small><div>${m.subject ? '<em>'+m.subject+'</em>' : ''}</div><div class="muted">${m.msg}</div>`; list.appendChild(li);
+          });
+        }
+
+        form.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          const name = nameI.value.trim(); const email = emailI.value.trim(); const sub = subjectI.value.trim(); const m = msgI.value.trim();
+          if(!name || !email || !m){ showToast('Please fill required fields'); return; }
+          const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if(!emailRe.test(email)){ showToast('Enter a valid email'); return; }
+          const obj = {name, email, subject: sub, msg: m, ts: Date.now()};
+          const arr = JSON.parse(localStorage.getItem('dv_messages') || '[]'); arr.push(obj); localStorage.setItem('dv_messages', JSON.stringify(arr));
+          nameI.value=''; emailI.value=''; subjectI.value=''; msgI.value=''; showToast('Message saved locally'); loadMessages();
+        });
+
+        document.getElementById('send-mail').addEventListener('click', ()=>{
+          const subject = encodeURIComponent(subjectI.value || 'Message from Daily Verse');
+          const body = encodeURIComponent((msgI.value||'') + '\n\nFrom: ' + (nameI.value||'') + ' <' + (emailI.value||'') + '>');
+          window.location.href = `mailto:hello@dailyverse.example?subject=${subject}&body=${body}`;
+        });
+
+        loadMessages();
+      })();
+    </script>
+  </main>
+  <footer class="site-footer"><div class="container">© 2026 Daily Verse</div></footer>
+</body>
+</html>

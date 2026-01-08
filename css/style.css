@@ -89,6 +89,11 @@ body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI
 .branch-card .muted{font-size:.9rem;color:var(--muted)}
 .branch-card:focus{outline:3px solid rgba(255,200,87,0.18);outline-offset:3px}
 
+/* Font controls */
+.font-controls{display:flex;gap:.5rem;align-items:center;margin:0.5rem 0 1rem}
+.font-controls label{font-size:.9rem;color:var(--muted)}
+.font-controls select, .font-controls input[type=range]{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text);padding:.4rem;border-radius:6px}
+
 /* Modal */
 .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:9999}
 .modal.open{pointer-events:auto}
@@ -97,7 +102,56 @@ body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI
 .modal-close{position:absolute;right:12px;top:12px}
 .modal[aria-hidden="true"]{display:none}
 
+/* Font family helpers */
+.font-sans{font-family: 'Montserrat', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+.font-serif{font-family: 'Merriweather', Georgia, 'Times New Roman', serif}
+.font-hand{font-family: 'Patrick Hand', 'Segoe UI', 'Helvetica Neue', Arial}
+
 @media (max-width:640px){ .branches{padding:1.25rem 0} .modal-panel{padding:.9rem} }
+
+/* About page */
+.about-page{display:block;padding:2rem 0}
+.about-hero{text-align:center;padding:1.25rem 0}
+.about-grid{display:grid;grid-template-columns:1fr 340px;gap:1.75rem;align-items:start}
+@media (max-width:880px){ .about-grid{grid-template-columns:1fr} }
+
+/* accordion */
+.accordion{border-radius:8px;overflow:hidden}
+.accordion-item{border-top:1px solid rgba(255,255,255,0.03)}
+.accordion-toggle{display:block;width:100%;background:transparent;border:0;padding:.9rem 1rem;text-align:left;color:var(--text);font-weight:700;cursor:pointer}
+.accordion-toggle:focus{outline:3px solid rgba(255,200,87,0.18)}
+.accordion-panel{padding:0 1rem 1rem 1rem}
+
+/* stats */
+.stats{display:flex;gap:0.75rem}
+.stat-card{flex:1;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:1rem;border-radius:10px;text-align:center}
+.stat-value{font-weight:700;font-size:1.25rem}
+.stat-label{color:var(--muted);font-size:.9rem}
+
+/* team */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.5rem}
+.team-card{background:var(--glass);padding:.75rem;border-radius:8px;cursor:pointer;transition:transform .12s ease,box-shadow .12s}
+.team-card:hover,.team-card:focus{transform:translateY(-6px);box-shadow:0 10px 30px rgba(2,6,23,0.45)}
+.team-card .bio{margin-top:.5rem;color:var(--muted);font-size:.95rem}
+
+/* Branch icon */
+.branch-card .icon{width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,0.03);display:grid;place-items:center;color:var(--accent);margin-bottom:.45rem;box-shadow:0 6px 18px rgba(2,6,23,0.25)}
+.branch-card svg{width:22px;height:22px}
+
+/* Contact form */
+.contact-wrap{max-width:760px;margin:0 auto;padding:1rem;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01));border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+.contact-form{display:grid;gap:.75rem}
+.contact-form input,.contact-form textarea,.contact-form select{padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);min-width:0}
+.contact-actions{display:flex;gap:.5rem;align-items:center}
+.contact-methods{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-top:.75rem}
+.contact-method{display:flex;gap:.5rem;align-items:center;padding:.5rem 0}
+.contact-icon{width:28px;height:28px;display:inline-grid;place-items:center;color:var(--accent)}
+
+/* small notices */
+.notice{background:rgba(7,18,36,0.85);padding:.6rem;border-radius:8px;color:var(--muted)}
+
+/* cta */
+.cta-center{text-align:center;padding:1rem 0}
 
 /* touch-friendly targets */
 @media (pointer:coarse){

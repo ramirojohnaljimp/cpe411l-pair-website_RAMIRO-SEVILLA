@@ -333,13 +333,22 @@ if(navDropdown){
   const contentEl = document.getElementById('branch-content');
   const linkEl = document.getElementById('branch-page-link');
 
+  const icons = {
+    morning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+    evening: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+    gratitude: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.78 0L12 5.6l-1.02-1a5.5 5.5 0 1 0-7.78 7.78L12 21.2l7.8-8.42a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    intercessory: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-3-3.87M7 21v-2a4 4 0 0 1 3-3.87M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/></svg>',
+    confession: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M5 12h14"/></svg>'
+  };
+
   function renderBranches(){
     grid.innerHTML = '';
     branches.forEach(b=>{
       const btn = document.createElement('button');
       btn.className='branch-card';
       btn.setAttribute('data-id', b.id);
-      btn.innerHTML = `<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
+      const iconHtml = `<div class="icon">${icons[b.id] || ''}</div>`;
+      btn.innerHTML = `${iconHtml}<strong>${b.title}</strong><div class="muted">${b.desc}</div>`;
       btn.addEventListener('click', ()=>openBranch(b.id));
       grid.appendChild(btn);
     });
@@ -352,6 +361,13 @@ if(navDropdown){
     descEl.textContent = b.desc;
     contentEl.innerHTML = b.content;
     linkEl.href = `pages/devotion.html#${b.id}`;
+
+    // Apply saved font prefs to content
+    const savedFamily = localStorage.getItem('dv_font_family') || 'sans';
+    const savedSize = localStorage.getItem('dv_font_size') || '16';
+    applyFontTo(contentEl, savedFamily, savedSize);
+    branchFont.value = savedFamily; branchFontSize.value = savedSize;
+
     modal.setAttribute('aria-hidden','false');
     modal.classList.add('open');
     modal.querySelector('.modal-close').focus();
@@ -367,7 +383,58 @@ if(navDropdown){
 
   renderBranches();
 
+  // font helpers wired to modal controls
+  const branchFont = document.getElementById('branch-font');
+  const branchFontSize = document.getElementById('branch-font-size');
+  function applyFontTo(el, family, size){
+    el.classList.remove('font-sans','font-serif','font-hand');
+    if(family === 'serif') el.classList.add('font-serif');
+    else if(family === 'hand') el.classList.add('font-hand');
+    else el.classList.add('font-sans');
+    el.style.fontSize = (Number(size) || 16) + 'px';
+  }
+  if(branchFont && branchFontSize){
+    // load saved values
+    const f = localStorage.getItem('dv_font_family') || 'sans';
+    const s = localStorage.getItem('dv_font_size') || '16';
+    branchFont.value = f; branchFontSize.value = s;
+    branchFont.addEventListener('change', ()=>{ localStorage.setItem('dv_font_family', branchFont.value); applyFontTo(contentEl, branchFont.value, branchFontSize.value); });
+    branchFontSize.addEventListener('input', ()=>{ localStorage.setItem('dv_font_size', branchFontSize.value); applyFontTo(contentEl, branchFont.value, branchFontSize.value); });
+  }
+
   // open branch if hash present (#morning etc.)
   const h = location.hash.replace('#','');
   if(h){ const exists = branches.find(b=>b.id===h); if(exists) openBranch(h); }
+
+  // --- NEW: About page interactivity (accordions, counters, team bios)
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Accordions on about page
+    document.querySelectorAll('.accordion-toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        const panel = btn.nextElementSibling;
+        if(!expanded) panel.style.maxHeight = panel.scrollHeight + 'px'; else panel.style.maxHeight = null;
+      });
+    });
+
+    // Animated counters using IntersectionObserver
+    const counters = document.querySelectorAll('.stat-value');
+    const io = new IntersectionObserver((entries, ob)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+          const el = en.target; const target = Number(el.dataset.target)||0; let cur = 0; const step = Math.max(1, Math.floor(target/60));
+          const t = setInterval(()=>{ cur += step; if(cur>=target){ el.textContent = target; clearInterval(t); } else el.textContent = cur; }, 18);
+          ob.unobserve(el);
+        }
+      });
+    }, {threshold:0.4});
+    counters.forEach(c=>io.observe(c));
+
+    // Team card show bio on focus/click
+    document.querySelectorAll('.team-card').forEach(card=>{
+      card.addEventListener('click', ()=>{ const bio = card.querySelector('.bio'); bio.hidden = !bio.hidden; });
+      card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.click(); } });
+    });
+  });
 })();
