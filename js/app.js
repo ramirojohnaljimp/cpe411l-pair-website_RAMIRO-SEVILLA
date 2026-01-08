@@ -423,8 +423,8 @@ if(navDropdown){
     const io = new IntersectionObserver((entries, ob)=>{
       entries.forEach(en=>{
         if(en.isIntersecting){
-          const el = en.target; const target = Number(el.dataset.target)||0; let cur = 0; const step = Math.max(1, Math.floor(target/60));
-          const t = setInterval(()=>{ cur += step; if(cur>=target){ el.textContent = target; clearInterval(t); } else el.textContent = cur; }, 18);
+          const el = en.target; const target = Number(el.dataset-target)||Number(el.dataset.target)||0; const tTarget = Number(el.dataset.target)||0; let cur = 0; const step = Math.max(1, Math.floor(tTarget/60));
+          const t = setInterval(()=>{ cur += step; if(cur>=tTarget){ el.textContent = tTarget; clearInterval(t); } else el.textContent = cur; }, 18);
           ob.unobserve(el);
         }
       });
@@ -436,5 +436,50 @@ if(navDropdown){
       card.addEventListener('click', ()=>{ const bio = card.querySelector('.bio'); bio.hidden = !bio.hidden; });
       card.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.click(); } });
     });
+
+    // NEW: Expand/Collapse all accordions
+    const accAllBtn = document.getElementById('accordion-all');
+    if(accAllBtn){
+      let allExpanded = false;
+      accAllBtn.addEventListener('click', ()=>{
+        allExpanded = !allExpanded; accAllBtn.textContent = allExpanded ? 'Collapse all' : 'Expand all';
+        document.querySelectorAll('.accordion-toggle').forEach(btn=>{
+          btn.setAttribute('aria-expanded', String(allExpanded));
+          const panel = btn.nextElementSibling; panel.style.maxHeight = allExpanded ? panel.scrollHeight + 'px' : null;
+        });
+      });
+    }
+
+    // NEW: Subscribe form (local demo)
+    const subBtn = document.getElementById('subscribe-btn');
+    const subInput = document.getElementById('subscribe-email');
+    const subToast = document.getElementById('subscribe-toast');
+    function showSub(text){ if(!subToast) return; subToast.style.display='inline-block'; subToast.textContent = text; clearTimeout(subToast._t); subToast._t = setTimeout(()=>subToast.style.display='none',2000); }
+    if(subBtn && subInput){
+      subBtn.addEventListener('click', ()=>{
+        const email = (subInput.value||'').trim();
+        if(!email){ showSub('Enter email'); return; }
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!re.test(email)){ showSub('Enter a valid email'); return; }
+        const arr = JSON.parse(localStorage.getItem('dv_subscribers') || '[]'); if(!arr.includes(email)) arr.push(email); localStorage.setItem('dv_subscribers', JSON.stringify(arr));
+        showSub('Subscribed'); subInput.value='';
+      });
+    }
+
+    // NEW: Donate modal
+    const donateBtn = document.getElementById('donate-btn');
+    const donateModal = document.getElementById('donate-modal');
+    if(donateBtn && donateModal){
+      donateBtn.addEventListener('click', ()=>{ donateModal.setAttribute('aria-hidden','false'); donateModal.classList.add('open'); donateModal.querySelector('.modal-close').focus(); });
+      donateModal.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', ()=>{ donateModal.setAttribute('aria-hidden','true'); donateModal.classList.remove('open'); }));
+      window.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && donateModal.classList.contains('open')){ donateModal.setAttribute('aria-hidden','true'); donateModal.classList.remove('open'); } });
+    }
+
+    // Team action reveals (accessibility support already via focus & hover)
+    document.querySelectorAll('.team-card').forEach(card=>{
+      card.addEventListener('focusin', ()=>{ const a = card.querySelector('.team-actions'); if(a) a.style.opacity=1; });
+      card.addEventListener('focusout', ()=>{ const a = card.querySelector('.team-actions'); if(a) a.style.opacity=0; });
+    });
+
   });
 })();

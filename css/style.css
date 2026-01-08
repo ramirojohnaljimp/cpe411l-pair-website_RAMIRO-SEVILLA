@@ -125,10 +125,36 @@ main{flex:1 0 auto}
 .branch-card:focus{outline:3px solid rgba(255,200,87,0.18);outline-offset:3px}
 
 /* About page */
-.about-page{display:block;padding:2rem 0}
-.about-hero{text-align:center;padding:1.25rem 0}
-.about-grid{display:grid;grid-template-columns:1fr 340px;gap:1.75rem;align-items:start}
+.about-page{display:block;padding:2.5rem 0}
+.about-hero{text-align:center;padding:1.5rem 0}
+.about-hero h2{font-size:clamp(1.6rem, 3.6vw, 2.6rem);margin-bottom:.35rem}
+.about-hero .muted{font-size:1.02rem;color:var(--muted)}
+.about-grid{display:grid;grid-template-columns:1fr 360px;gap:1.75rem;align-items:start}
+@media (max-width:1024px){ .about-grid{grid-template-columns:1fr 320px} }
 @media (max-width:880px){ .about-grid{grid-template-columns:1fr} }
+
+/* Feature cards: larger, more prominent */
+.feature-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:0 0 1rem}
+.feature-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:1.15rem;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:.6rem;align-items:flex-start;justify-content:space-between;transition:transform .16s cubic-bezier(.2,.9,.2,1),box-shadow .16s}
+.feature-card .feature-icon{width:56px;height:56px;border-radius:10px;display:grid;place-items:center;font-size:1.45rem;background:rgba(255,255,255,0.02);color:var(--accent);box-shadow:0 10px 30px rgba(2,6,23,0.16)}
+.feature-title{font-size:1.08rem;font-weight:700;color:var(--text)}
+.feature-desc{color:var(--muted);font-size:0.98rem;line-height:1.45;margin:0}
+.feature-card .btn{margin-top:.6rem}
+.feature-card:hover,.feature-card:focus{transform:translateY(-7px);box-shadow:0 24px 60px rgba(2,6,23,0.6)}
+.feature-card:focus{outline:3px solid rgba(255,200,87,0.18);outline-offset:6px}
+
+/* larger stat values on about page */
+.stat-value{font-weight:800;font-size:1.6rem}
+
+@media (max-width:640px){
+  .feature-card{padding:.9rem}
+  .feature-card .feature-icon{width:48px;height:48px;font-size:1.1rem}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .feature-card,.btn{transition:none !important}
+  .feature-card:hover{transform:none}
+}
 
 /* accordion */
 .accordion{border-radius:8px;overflow:hidden}

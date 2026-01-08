@@ -10,28 +10,43 @@
 <body>
   <header class="site-header"><div class="container"><h1 class="logo">About Daily Verse</h1><nav class="main-nav"><a href="../">Home</a></nav></div></header>
   <main class="container about-page">
+    <div class="about-inner">
     <section class="about-hero">
       <h2>Our Mission</h2>
       <p class="muted">Daily Verse provides a simple, accessible devotional experience centered on Scripture, short reflections, and prayer — helping you carry faith into everyday life.</p>
-      <p><a href="contact.html" class="btn primary">Contact Us</a> <button id="donate-btn" class="btn">Support</button></p>
+      <div class="hero-actions" style="margin-top:.8rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap">
+        <a href="contact.html" class="btn primary">Contact Us</a>
+        <button id="donate-btn" class="btn" aria-haspopup="dialog">Support</button>
+        <div class="subscribe" style="display:flex;gap:.5rem;align-items:center">
+          <input id="subscribe-email" placeholder="Your email for updates" aria-label="Email for updates">
+          <button id="subscribe-btn" class="btn">Subscribe</button>
+          <span id="subscribe-toast" class="notice" style="display:none;margin-left:.5rem">Subscribed!</span>
+        </div>
+      </div>
     </section>
 
     <section class="about-grid">
       <div class="about-left">
         <h3>What we provide</h3>
-        <div class="accordion" id="about-accordion">
-          <div class="accordion-item">
-            <button class="accordion-toggle" aria-expanded="false">Daily Verses</button>
-            <div class="accordion-panel muted">Curated daily verses with translations in English, Filipino (Tagalog), and Spanish. Shareable and easy to read.</div>
-          </div>
-          <div class="accordion-item">
-            <button class="accordion-toggle" aria-expanded="false">Short Devotions & Prayers</button>
-            <div class="accordion-panel muted">Bite-sized devotions organized by theme (morning, evening, gratitude, intercession, confession).</div>
-          </div>
-          <div class="accordion-item">
-            <button class="accordion-toggle" aria-expanded="false">Accessibility & Customization</button>
-            <div class="accordion-panel muted">Options for reduced motion, adjustable font families and sizes, and keyboard-friendly navigation.</div>
-          </div>
+        <div class="feature-cards" role="list" aria-label="What we provide">
+          <article class="feature-card" role="listitem" tabindex="0" aria-labelledby="f1-title">
+            <div class="feature-icon" aria-hidden="true">📖</div>
+            <h4 id="f1-title" class="feature-title">Daily Verses</h4>
+            <p class="feature-desc">Fresh, readable daily Bible verses with per-word spacing and multiple translations (English, Filipino, Spanish). Save favorites and share quickly.</p>
+            <p><a href="../" class="btn">View verses</a></p>
+          </article>
+          <article class="feature-card" role="listitem" tabindex="0" aria-labelledby="f2-title">
+            <div class="feature-icon" aria-hidden="true">🙏</div>
+            <h4 id="f2-title" class="feature-title">Short Devotions & Prayers</h4>
+            <p class="feature-desc">Bite-sized devotions and themed prayers for morning, evening, gratitude, and intercession—designed for quick reflection and journaling.</p>
+            <p><a href="devotion.html" class="btn">Explore devotions</a></p>
+          </article>
+          <article class="feature-card" role="listitem" tabindex="0" aria-labelledby="f3-title">
+            <div class="feature-icon" aria-hidden="true">⚙️</div>
+            <h4 id="f3-title" class="feature-title">Accessibility & Customization</h4>
+            <p class="feature-desc">Adjust font families and sizes, toggle reduced motion, and use keyboard-friendly navigation to make the experience yours.</p>
+            <p><a href="../" class="btn">Customize</a></p>
+          </article>
         </div>
 
         <h3 style="margin-top:1.25rem">Credits</h3>
@@ -47,9 +62,9 @@
 
         <h4 style="margin-top:1rem">Our Team</h4>
         <div class="team-grid">
-          <div class="team-card" tabindex="0"><strong>Lead Dev</strong><div class="muted">Site engineering & UX</div><p class="bio" hidden>Builds features, ensures accessibility and performance.</p></div>
-          <div class="team-card" tabindex="0"><strong>Content Editor</strong><div class="muted">Editorial curation</div><p class="bio" hidden>Curates verses and writes devotions.</p></div>
-          <div class="team-card" tabindex="0"><strong>Community</strong><div class="muted">Outreach & partnerships</div><p class="bio" hidden>Engages with churches and contributors.</p></div>
+          <div class="team-card" tabindex="0"><strong>Lead Dev</strong><div class="muted">Site engineering & UX</div><div class="team-actions" aria-hidden="true"><a href="#" class="contact-icon" aria-label="Lead Dev Twitter">🐦</a><a href="#" class="contact-icon" aria-label="Lead Dev Profile">🔗</a></div><p class="bio" hidden>Builds features, ensures accessibility and performance.</p></div>
+          <div class="team-card" tabindex="0"><strong>Content Editor</strong><div class="muted">Editorial curation</div><div class="team-actions" aria-hidden="true"><a href="#" class="contact-icon" aria-label="Content Editor Twitter">🐦</a><a href="#" class="contact-icon" aria-label="Content Editor Profile">🔗</a></div><p class="bio" hidden>Curates verses and writes devotions.</p></div>
+          <div class="team-card" tabindex="0"><strong>Community</strong><div class="muted">Outreach & partnerships</div><div class="team-actions" aria-hidden="true"><a href="#" class="contact-icon" aria-label="Community Twitter">🐦</a><a href="#" class="contact-icon" aria-label="Community Profile">🔗</a></div><p class="bio" hidden>Engages with churches and contributors.</p></div>
         </div>
       </div>
     </section>
@@ -60,6 +75,17 @@
       <p class="muted">Want to contribute or suggest a translation?</p>
       <p><a class="btn primary" href="contact.html">Send us a message</a></p>
     </section>
+
+    <div id="donate-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="donate-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel" role="document">
+        <button class="modal-close btn" data-close aria-label="Close">✕</button>
+        <h3 id="donate-title">Support Daily Verse</h3>
+        <p class="muted">This demo does not process payments. To support the project, please contact us and we can discuss options.</p>
+        <p><a id="donate-link" class="btn primary" href="contact.html">Contact for support</a></p>
+      </div>
+    </div>
+  </div>
   </main>
   <footer class="site-footer"><div class="container">© 2026 Daily Verse</div></footer>
 </body>
