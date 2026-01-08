@@ -99,6 +99,25 @@
         </p>
       </div>
     </div>
+
+    <!-- Testament modal (Old / New) -->
+    <div id="testament-modal" class="modal" role="dialog" aria-hidden="true" aria-labelledby="testament-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel" role="document">
+        <button class="modal-close btn" aria-label="Close" data-close>✕</button>
+        <h3 id="testament-title">Bible Books</h3>
+        <p class="muted" id="testament-desc">Select a book to view its chapters and verses.</p>
+
+        <div class="testament-controls" style="margin:0.75rem 0;display:flex;gap:.6rem;align-items:center">
+          <button id="btn-old" class="btn">Old Testament</button>
+          <button id="btn-new" class="btn">New Testament</button>
+        </div>
+
+        <div id="testament-content">
+          <div class="testament-grid" id="testament-grid"></div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer">

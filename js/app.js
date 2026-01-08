@@ -188,8 +188,65 @@ if(navDropdown){
     if(menu){
       menu.addEventListener('click', (e)=>{
         const a = e.target.closest('a'); if(!a) return; e.preventDefault(); const t = a.dataset.testament;
-        if(t){ location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + t; }
+        if(t){
+          // open local modal with book list (if present), otherwise navigate to verse page with param
+          if(typeof openTestamentModal === 'function') { openTestamentModal(t); }
+          else { location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + t; }
+        }
       });
+    }
+
+    // -- Testament modal rendering and behavior
+    const TESTAMENTS = {
+      old: [
+        'Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'
+      ],
+      new: [
+        'Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'
+      ]
+    };
+
+    function openTestamentModal(which){
+      const mod = document.getElementById('testament-modal'); const grid = document.getElementById('testament-grid'); const title = document.getElementById('testament-title'); const desc = document.getElementById('testament-desc');
+      if(!mod || !grid) { location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'verse.html#testament=' + which; return; }
+      grid.innerHTML = '';
+      const books = TESTAMENTS[which] || [];
+      books.forEach(b=>{
+        const item = document.createElement('div'); item.className = 'book-item'; item.innerHTML = `<a href="pages/verse.html#book=${encodeURIComponent(b)}">${b}</a>`;
+        item.addEventListener('click', ()=>{ location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'pages/verse.html#book=' + encodeURIComponent(b); });
+        grid.appendChild(item);
+      });
+      title.textContent = which === 'old' ? 'Old Testament Books' : 'New Testament Books';
+      if(desc) desc.textContent = which === 'old' ? 'List of the 39 Old Testament books.' : 'List of the 27 New Testament books.';
+
+      // update control buttons state & accessibility
+      const bOld = document.getElementById('btn-old');
+      const bNew = document.getElementById('btn-new');
+      if(bOld){
+        bOld.classList.toggle('active', which === 'old');
+        bOld.setAttribute('aria-pressed', which === 'old');
+        bOld.setAttribute('aria-controls','testament-content');
+        bOld.onclick = ()=>{ if(which !== 'old') openTestamentModal('old'); };
+      }
+      if(bNew){
+        bNew.classList.toggle('active', which === 'new');
+        bNew.setAttribute('aria-pressed', which === 'new');
+        bNew.setAttribute('aria-controls','testament-content');
+        bNew.onclick = ()=>{ if(which !== 'new') openTestamentModal('new'); };
+      }
+
+      // open modal
+      mod.setAttribute('aria-hidden','false'); mod.classList.add('open'); document.body.style.overflow='hidden';
+      // focus active button for immediate keyboard navigation
+      const focusBtn = (which === 'old' ? bOld : bNew) || mod.querySelector('.modal-close');
+      if(focusBtn) focusBtn.focus();
+      // wire close
+      mod.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', ()=>{ mod.setAttribute('aria-hidden','true'); mod.classList.remove('open'); document.body.style.overflow=''; }));
+    }
+
+    // If the page has a testament modal (pages/verse.html), open it if hash present
+    if(location.hash && location.hash.includes('testament=')){
+      const t = location.hash.split('testament=')[1].split('&')[0]; if(t && document.getElementById('testament-modal')) openTestamentModal(t);
     }
   }
 }
